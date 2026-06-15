@@ -288,6 +288,7 @@ tr:hover td{background:rgba(79,142,247,0.03);}
   <div class="sidebar-footer">
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
     <button class="theme-btn btn-sm" onclick="openAdd()">+ Add</button>
+    <button class="theme-btn" onclick="resetAllData()" style="color:var(--red);font-size:11px" title="Reset & reload all data">↺</button>
   </div>
 </nav>
 
@@ -437,7 +438,10 @@ tr:hover td{background:rgba(79,142,247,0.03);}
       <div class="card">
         <div class="card-header">
           <div class="card-title">Outgoings Ledger — Apr to Jun 2026</div>
-          <div style="display:flex;gap:8px;align-items:center"><div id="ledger-total" style="font-size:13px;font-weight:700;color:var(--red)"></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div id="ledger-total" style="font-size:13px;font-weight:700;color:var(--red)"></div>
+            <button class="btn btn-primary btn-sm" onclick="openAddLedger()">+ Add Entry</button>
+          </div>
         </div>
         <div class="tbl-wrap">
           <table>
@@ -542,7 +546,7 @@ tr:hover td{background:rgba(79,142,247,0.03);}
 
 <script>
 // ═══════════════════════════ DATA ═══════════════════════════
-const VER = 'atw_crm_v16_apr26';
+const VER = 'atw_crm_v18_apr26';
 
 const SEED_PAYMENTS = [
   {"cid":1, "amount":877, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
@@ -1422,6 +1426,15 @@ function addLedgerEntry(){
   saveLedger();
   closeModal('modal-ledger-add');
   renderLedger();
+}
+
+
+function resetAllData(){
+  if(!confirm('This will reset ALL data and reload from scratch. Any edits you made will be lost. Are you sure?')) return;
+  localStorage.removeItem(VER);
+  localStorage.removeItem(LEDGER_KEY);
+  localStorage.removeItem(PWD_KEY);
+  location.reload();
 }
 
 // ══ INIT ══
