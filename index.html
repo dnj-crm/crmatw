@@ -288,6 +288,9 @@ tr:hover td{background:rgba(79,142,247,0.03);}
   <div class="sidebar-footer">
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
     <button class="theme-btn btn-sm" onclick="openAdd()">+ Add</button>
+    <button class="theme-btn" onclick="exportBackup()" title="Export backup" style="font-size:11px">💾</button>
+    <button class="theme-btn" onclick="document.getElementById('import-file').click()" title="Restore backup" style="font-size:11px">📂</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(this)">
     <button class="theme-btn" onclick="resetAllData()" style="color:var(--red);font-size:11px" title="Reset & reload all data">↺</button>
   </div>
 </nav>
@@ -440,6 +443,7 @@ tr:hover td{background:rgba(79,142,247,0.03);}
           <div class="card-title">Outgoings Ledger — Apr to Jun 2026</div>
           <div style="display:flex;gap:8px;align-items:center">
             <div id="ledger-total" style="font-size:13px;font-weight:700;color:var(--red)"></div>
+            <button class="btn btn-ghost btn-sm" onclick="generateNextMonth()" style="color:var(--accent)">📅 Generate Next Month</button>
             <button class="btn btn-primary btn-sm" onclick="openAddLedger()">+ Add Entry</button>
           </div>
         </div>
@@ -546,7 +550,7 @@ tr:hover td{background:rgba(79,142,247,0.03);}
 
 <script>
 // ═══════════════════════════ DATA ═══════════════════════════
-const VER = 'atw_crm_v18_apr26';
+const VER = 'atw_crm_v20_apr26';
 
 const SEED_PAYMENTS = [
   {"cid":1, "amount":877, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
@@ -1436,6 +1440,151 @@ function resetAllData(){
   localStorage.removeItem(PWD_KEY);
   location.reload();
 }
+
+
+// ══ RECURRING EXPENSES TEMPLATE ══
+// These are the expenses that repeat every month
+const RECURRING = [
+  {day:1,  desc:"ATO Payment",                       amount:3000,    cat:"Tax",       vehicle:"Business",                provider:"ATO",                    notes:"Monthly ATO payment"},
+  {day:1,  desc:"Kluger EMI (Personal)",             amount:1445,    cat:"Personal",  vehicle:"Sidra — Kluger",          provider:"Loan/Lease",             notes:"Personal car EMI"},
+  {day:1,  desc:"Buddy Tracker (6 cars)",            amount:138,     cat:"Business",  vehicle:"Fleet — all vehicles",    provider:"Buddy Tracker",          notes:"6 car trackers"},
+  {day:2,  desc:"Naijhana Budget Insurance",         amount:196.09,  cat:"Insurance", vehicle:"Naijhana — iMax",         provider:"Budget Direct",          notes:""},
+  {day:6,  desc:"Ashoka Bingle Insurance",           amount:112.36,  cat:"Insurance", vehicle:"Ashoka — Camry",          provider:"Bingle",                 notes:""},
+  {day:6,  desc:"Ashoka EMI — Shift",                amount:707,     cat:"EMI",       vehicle:"Ashoka — Camry",          provider:"Shift",                  notes:""},
+  {day:7,  desc:"Naijhana Holden Shift EMI",         amount:1089.87, cat:"EMI",       vehicle:"Naijhana — Holden",       provider:"Shift",                  notes:""},
+  {day:8,  desc:"Microsoft",                         amount:21.60,   cat:"Business",  vehicle:"Business",                provider:"Microsoft",              notes:"Monthly subscription"},
+  {day:8,  desc:"Naijhana iMax EMI",                 amount:1280.51, cat:"EMI",       vehicle:"Naijhana — iMax",         provider:"Secure Funding",         notes:""},
+  {day:8,  desc:"Ashley EMI",                        amount:916.58,  cat:"EMI",       vehicle:"Ashley — CX8",            provider:"Angle Auto Finance",     notes:""},
+  {day:8,  desc:"Doan Shift EMI",                    amount:743.31,  cat:"EMI",       vehicle:"Doan — Mitsubishi",       provider:"Shift",                  notes:""},
+  {day:9,  desc:"Jacqueline Triton Shift EMI",       amount:1286.10, cat:"EMI",       vehicle:"Jacqueline — Triton",     provider:"Shift",                  notes:""},
+  {day:9,  desc:"Autopay Sidra Surmed",              amount:692.55,  cat:"EMI",       vehicle:"TBC — unknown vehicle",   provider:"TBC",                    notes:"Which vehicle is this?"},
+  {day:10, desc:"Kluger Insurance (Personal)",       amount:232,     cat:"Personal",  vehicle:"Sidra — Kluger",          provider:"Loan/Lease",             notes:"Personal car insurance"},
+  {day:12, desc:"Adica Insurance",                   amount:232.66,  cat:"Insurance", vehicle:"Sidra — Kluger",          provider:"Adica (MS&AD)",          notes:"Personal car insurance"},
+  {day:14, desc:"Shirley Budget Insurance",          amount:159.75,  cat:"Insurance", vehicle:"Shirley — Carnival",      provider:"Budget Direct",          notes:""},
+  {day:14, desc:"Elizabeth Budget Insurance",        amount:211.75,  cat:"Insurance", vehicle:"Elizabeth — Pathfinder",  provider:"Budget Direct",          notes:""},
+  {day:15, desc:"Nyajuok EMI — Powertorque",         amount:956.24,  cat:"EMI",       vehicle:"Nyajuok — Xtrail",        provider:"Powertorque Finance",    notes:""},
+  {day:15, desc:"Bookkeeping",                       amount:300,     cat:"Business",  vehicle:"Business",                provider:"Bookkeeper",             notes:""},
+  {day:21, desc:"Oznur EMI — MB Financial",          amount:1372.25, cat:"EMI",       vehicle:"Oznur — C250 Merc",       provider:"MB Financial",           notes:""},
+  {day:21, desc:"Shirley EMI — Powertorque",         amount:1381.85, cat:"EMI",       vehicle:"Shirley — Carnival",      provider:"Powertorque Finance",    notes:""},
+  {day:22, desc:"Oznur QBE Insurance",               amount:245.76,  cat:"Insurance", vehicle:"Oznur — C250 Merc",       provider:"QBE Insurance",          notes:""},
+  {day:26, desc:"Ashley Budget Insurance",           amount:178.03,  cat:"Insurance", vehicle:"Ashley — CX8",            provider:"Budget Direct",          notes:""},
+  {day:26, desc:"Bargass duo EMI",                   amount:1553.81, cat:"EMI",       vehicle:"Bargass — 2 vehicles",    provider:"Azora Asset Finance",    notes:"Debt collector case"},
+  {day:27, desc:"Rupesh Car EMI",                    amount:483.64,  cat:"EMI",       vehicle:"Rupesh — Nissan Xtrail",  provider:"Plenti",                 notes:""},
+  {day:27, desc:"BMW EMI — Westpac",                 amount:4087.55, cat:"Personal",  vehicle:"BMW — personal",          provider:"Westpac Vehicle Finance", notes:""},
+  {day:29, desc:"Nyajuok Bingle Insurance",          amount:141.46,  cat:"Insurance", vehicle:"Nyajuok — Xtrail",        provider:"Bingle",                 notes:""},
+];
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function generateNextMonth(){
+  // Work out what the next month is based on latest entry in ledger
+  const lastEntry = LEDGER[LEDGER.length - 1];
+  let nextMonth, nextYear;
+
+  if(lastEntry && lastEntry.date){
+    // Parse something like "21-Jun-26"
+    const parts = lastEntry.date.split('-');
+    if(parts.length >= 3){
+      const moStr = parts[1];
+      const yrStr = parts[2];
+      const moIdx = MONTH_NAMES.findIndex(m => m.toLowerCase() === moStr.toLowerCase());
+      if(moIdx >= 0){
+        const yr = parseInt('20' + yrStr);
+        if(moIdx === 11){ nextMonth = 0; nextYear = yr + 1; }
+        else { nextMonth = moIdx + 1; nextYear = yr; }
+      }
+    }
+  }
+
+  // Default to next month from today if can't parse
+  if(nextMonth === undefined){
+    const d = new Date();
+    nextMonth = d.getMonth() + 1;
+    nextYear = d.getFullYear();
+    if(nextMonth > 11){ nextMonth = 0; nextYear++; }
+  }
+
+  const moName = MONTH_NAMES[nextMonth];
+  const yrShort = String(nextYear).slice(2);
+  const monthLabel = moName + '-' + yrShort;
+
+  // Check if already generated
+  const alreadyExists = LEDGER.filter(l => l.date.includes(moName + '-' + yrShort));
+  if(alreadyExists.length > 0){
+    if(!confirm(`Entries for ${moName} 20${yrShort} already exist (${alreadyExists.length} entries). Generate again anyway?`)) return;
+  } else {
+    if(!confirm(`Generate all ${RECURRING.length} recurring expenses for ${moName} 20${yrShort}?\n\nTotal: $${RECURRING.reduce((s,r)=>s+r.amount,0).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}\n\nYou can delete any that didn't actually go out.`)) return;
+  }
+
+  // Add all recurring entries for next month
+  RECURRING.forEach(r => {
+    LEDGER.push({
+      date:     `${r.day}-${moName}-${yrShort}`,
+      amount:   r.amount,
+      desc:     r.desc,
+      cat:      r.cat,
+      vehicle:  r.vehicle,
+      provider: r.provider,
+      notes:    r.notes,
+    });
+  });
+
+  saveLedger();
+  ledgerTabActive = 'all';
+  renderLedger();
+
+  // Show success
+  alert(`✅ ${RECURRING.length} entries generated for ${moName} 20${yrShort}!\n\nTotal: $${RECURRING.reduce((s,r)=>s+r.amount,0).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}\n\nReview and delete any that didn't go out.`);
+}
+
+
+
+// ══ BACKUP & RESTORE ══
+function exportBackup(){
+  const data = {
+    version: VER,
+    exportedAt: new Date().toLocaleString('en-AU'),
+    customers,
+    payments,
+    outPaid,
+    ledger: LEDGER,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ATW_CRM_Backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.customers){ alert('❌ Invalid backup file'); return; }
+      if(!confirm('Restore backup from ' + (data.exportedAt||'unknown date') + '?\n\nThis will replace ALL current data.')) return;
+      customers   = data.customers || [];
+      payments    = data.payments  || [];
+      outPaid     = data.outPaid   || {};
+      LEDGER.length = 0;
+      (data.ledger || []).forEach(l => LEDGER.push(l));
+      save();
+      saveLedger();
+      localStorage.setItem(LEDGER_KEY, JSON.stringify(LEDGER));
+      alert('✅ Backup restored successfully!');
+      location.reload();
+    } catch(err){
+      alert('❌ Could not read backup file. Make sure it is a valid ATW CRM backup.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
 
 // ══ INIT ══
 checkAuth();
