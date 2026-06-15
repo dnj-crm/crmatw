@@ -542,7 +542,7 @@ tr:hover td{background:rgba(79,142,247,0.03);}
 
 <script>
 // ═══════════════════════════ DATA ═══════════════════════════
-const VER = 'atw_crm_v15_apr26';
+const VER = 'atw_crm_v16_apr26';
 
 const SEED_PAYMENTS = [
   {"cid":1, "amount":877, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
@@ -1308,9 +1308,11 @@ function renderLedger(){
   document.getElementById('ledger-total').textContent = 'Showing: $' + total.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   const rows = list.map(l => {
+    const realIdx = LEDGER.indexOf(l);
     const isTBC = l.vehicle.includes('TBC') || l.provider === 'TBC';
     const cc = CAT_CLR_L[l.cat] || 'gray';
-    return `<tr style="${isTBC?'background:rgba(245,158,11,0.05)':''}">
+    const noteColor = l.notes && (l.notes.includes('?') || l.notes.includes('TBC')) ? 'var(--orange)' : 'var(--text3)';
+    return `<tr style="cursor:pointer;${isTBC?'background:rgba(245,158,11,0.05)':''}" onclick="openEditLedger(${realIdx})">
       <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);white-space:nowrap">${l.date}</td>
       <td style="font-weight:600">${l.desc}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--red);white-space:nowrap">$${l.amount.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
@@ -1319,12 +1321,13 @@ function renderLedger(){
         ${isTBC?'⚠️ ':''}<strong>${l.vehicle.split('—')[0].trim()}</strong>${l.vehicle.includes('—')?'<br><span style="font-size:11px;color:var(--text3)">'+l.vehicle.split('—')[1].trim()+'</span>':''}
       </td>
       <td style="font-size:12px;color:var(--text2)">${l.provider}</td>
-      <td style="font-size:11px;color:${l.notes.includes('?')||l.notes.includes('TBC')?'var(--orange)':'var(--text3)'}">${l.notes||'—'}</td>
+      <td style="font-size:11px;color:${noteColor}">${l.notes||'—'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openEditLedger(${realIdx})" style="padding:3px 8px;font-size:11px">✏️</button></td>
     </tr>`;
   }).join('');
 
   document.getElementById('ledger-tbody').innerHTML = rows ||
-    '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:20px">No entries for this filter</td></tr>';
+    '<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:20px">No entries for this filter</td></tr>';
 }
 
 
