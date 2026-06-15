@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AT&W Fleet CRM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* ── THEME VARIABLES ── */
+
+/* ── PASSWORD SCREEN ── */
+#password-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.lock-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  padding:40px 36px;width:100%;max-width:380px;text-align:center;
+}
+.lock-icon{font-size:48px;margin-bottom:20px;}
+.lock-title{font-size:22px;font-weight:800;margin-bottom:6px;}
+.lock-sub{font-size:13px;color:var(--text2);margin-bottom:28px;}
+.lock-input{
+  width:100%;padding:12px 16px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-size:16px;font-family:'Inter',sans-serif;
+  outline:none;text-align:center;letter-spacing:3px;
+  transition:border 0.15s;margin-bottom:12px;
+}
+.lock-input:focus{border-color:var(--accent);}
+.lock-btn{
+  width:100%;padding:12px;background:var(--accent);color:white;
+  border:none;border-radius:10px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;
+}
+.lock-btn:hover{background:#3a7de0;}
+.lock-error{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+.lock-footer{font-size:11px;color:var(--text3);margin-top:20px;}
+
+:root {
+  --bg:       #0F1117; --bg2:#1A1D27; --bg3:#232736;
+  --border:   #2E3347; --text:#F1F5F9; --text2:#94A3B8; --text3:#475569;
+  --accent:   #4F8EF7; --accent2:#7C5CFC;
+  --green:    #22C55E; --green-bg:rgba(34,197,94,0.12);  --green-txt:#16A34A;
+  --red:      #EF4444; --red-bg:rgba(239,68,68,0.12);    --red-txt:#DC2626;
+  --orange:   #F59E0B; --orange-bg:rgba(245,158,11,0.12);--orange-txt:#D97706;
+  --yellow:   #EAB308; --blue-bg:rgba(79,142,247,0.12);
+  --purple:   #8B5CF6; --purple-bg:rgba(139,92,246,0.12);
+  --gray-bg:  rgba(148,163,184,0.12);
+  --radius:14px; --radius-sm:8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+body.light {
+  --bg:#F0F4F8; --bg2:#FFFFFF; --bg3:#EDF2F7;
+  --border:#CBD5E1; --text:#1E293B; --text2:#475569; --text3:#94A3B8;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s;}
+
+/* ── LAYOUT ── */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s,background 0.3s;}
+.main{margin-left:230px;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:12px;}
+.content{padding:24px;flex:1;}
+
+/* ── SIDEBAR ── */
+.logo-area{padding:22px 18px 16px;border-bottom:1px solid var(--border);}
+.logo-brand{font-size:22px;font-weight:800;letter-spacing:-0.5px;}
+.logo-brand span{color:var(--accent);}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.nav{flex:1;padding:10px 8px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:2px;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--blue-bg);color:var(--accent);}
+.nav-icon{font-size:16px;width:22px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;}
+.theme-btn{flex:1;padding:7px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── TOP BAR ── */
+.topbar-title{font-size:17px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:11px;color:var(--text2);}
+
+/* ── SECTIONS ── */
+.section{display:none;}.section.active{display:block;}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.c-green::after{background:var(--green);}
+.stat-card.c-red::after{background:var(--red);}
+.stat-card.c-blue::after{background:var(--accent);}
+.stat-card.c-orange::after{background:var(--orange);}
+.stat-card.c-purple::after{background:var(--purple);}
+.stat-card.c-gray::after{background:var(--text3);}
+.stat-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.stat-value{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;}
+.stat-value.c-green{color:var(--green);}
+.stat-value.c-red{color:var(--red);}
+.stat-value.c-blue{color:var(--accent);}
+.stat-value.c-orange{color:var(--orange);}
+.stat-value.c-purple{color:var(--purple);}
+.stat-value.c-gray{color:var(--text2);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+.card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:700;}
+.card-body{padding:16px 20px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 14px;background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(79,142,247,0.03);}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge.green{background:var(--green-bg);color:var(--green);}
+.badge.red{background:var(--red-bg);color:var(--red);}
+.badge.orange{background:var(--orange-bg);color:var(--orange);}
+.badge.blue{background:var(--blue-bg);color:var(--accent);}
+.badge.purple{background:var(--purple-bg);color:var(--purple);}
+.badge.gray{background:var(--gray-bg);color:var(--text2);}
+
+/* ── BUTTON ── */
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;}
+.btn-primary{background:var(--accent);color:white;}
+.btn-primary:hover{background:#3a7de0;}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--text3);}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid transparent;}
+.btn-danger:hover{background:var(--red);color:white;}
+.btn-sm{padding:5px 11px;font-size:12px;}
+
+/* ── PAY ROW ── */
+.pay-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.pay-row:last-child{border-bottom:none;}
+.avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+.pay-info{flex:1;min-width:0;}
+.pay-name{font-size:13px;font-weight:600;}
+.pay-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.pay-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.pay-amount{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;}
+.mark-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.mark-btn.unpaid{background:var(--green-bg);color:var(--green);}
+.mark-btn.unpaid:hover{background:var(--green);color:white;}
+.mark-btn.paid{background:var(--green-bg);color:var(--green);cursor:default;}
+.mark-btn.overdue{background:var(--red-bg);color:var(--red);}
+.mark-btn.overdue:hover{background:var(--red);color:white;}
+
+/* ── CUSTOMER CARD ── */
+.cust-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+.cust-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all 0.15s;position:relative;}
+.cust-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow);}
+.cust-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.cust-info{flex:1;}
+.cust-name{font-size:15px;font-weight:700;}
+.cust-rego{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.cust-actions{display:flex;gap:6px;align-items:center;}
+.edit-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text2);font-size:12px;transition:all 0.15s;}
+.edit-btn:hover{border-color:var(--accent);color:var(--accent);}
+.divider{height:1px;background:var(--border);margin:10px 0;}
+.info-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:7px;}
+.info-label{color:var(--text2);}
+.info-val{font-weight:600;}
+.progress-bg{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:5px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+
+/* ── OUTGOINGS ── */
+.out-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.out-row:last-child{border-bottom:none;}
+.out-day{width:34px;height:34px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;color:var(--text2);}
+.out-info{flex:1;}
+.out-name{font-size:13px;font-weight:600;}
+.out-cat{margin-top:2px;}
+.out-amount{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--red);}
+.check-btn{width:28px;height:28px;border-radius:6px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.15s;background:transparent;flex-shrink:0;}
+.check-btn.done{background:var(--green);border-color:var(--green);color:white;}
+.check-btn:hover:not(.done){border-color:var(--green);}
+
+/* ── ALERTS ── */
+.alert{padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.alert.warn{background:var(--orange-bg);border:1px solid rgba(245,158,11,0.25);color:var(--orange);}
+.alert.danger{background:var(--red-bg);border:1px solid rgba(239,68,68,0.25);color:var(--red);}
+.alert.success{background:var(--green-bg);border:1px solid rgba(34,197,94,0.25);color:var(--green);}
+.alert.info{background:var(--blue-bg);border:1px solid rgba(79,142,247,0.25);color:var(--accent);}
+
+/* ── TABS ── */
+.tab-row{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.tab{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text2);transition:all 0.15s;font-family:'Inter',sans-serif;}
+.tab.active{background:var(--accent);border-color:var(--accent);color:white;}
+.tab:hover:not(.active){border-color:var(--text3);color:var(--text);}
+
+/* ── REMINDER BOX ── */
+.rem-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;}
+.rem-header{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.rem-msg{font-size:12px;line-height:1.6;color:var(--text2);}
+.copy-btn{padding:5px 12px;font-size:11px;font-weight:700;background:var(--accent);color:white;border:none;border-radius:6px;cursor:pointer;margin-top:10px;font-family:'Inter',sans-serif;}
+.section-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 10px;}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:460px;max-height:92vh;overflow-y:auto;}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:15px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:22px;line-height:1;padding:0;}
+.modal-body{padding:18px 22px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center;}
+.field{margin-bottom:14px;}
+.field-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;display:block;}
+.field-input{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border 0.15s;}
+.field-input:focus{border-color:var(--accent);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* ── MOBILE ── */
+.hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;font-size:18px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:90;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hamburger{display:flex;}
+  .overlay.show{display:block;}
+  .content{padding:14px;}
+  .topbar{padding:12px 14px 12px 54px;}
+  .grid2{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .field-row{grid-template-columns:1fr;}
+}
+
+/* ── SEARCH ── */
+.search-bar{display:flex;gap:10px;margin-bottom:18px;align-items:center;flex-wrap:wrap;}
+.search-input{padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:220px;}
+.search-input:focus{border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div id="password-screen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">AT&W Fleet CRM</div>
+    <div class="lock-sub">Enter your password to continue</div>
+    <input class="lock-input" type="password" id="pwd-input" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="lock-btn" onclick="checkPwd()">Unlock</button>
+    <div class="lock-error" id="pwd-error">❌ Incorrect password. Try again.</div>
+    <div class="lock-footer">AT&W Pty Ltd · Private & Confidential</div>
+  </div>
+</div>
+
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="logo-area">
+    <div class="logo-brand">AT<span>&</span>W</div>
+    <div class="logo-sub">Fleet CRM · Melbourne</div>
+  </div>
+  <div class="nav">
+    <button class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</button>
+    <button class="nav-item" onclick="nav('customers',this)"><span class="nav-icon">👥</span>Customers</button>
+    <button class="nav-item" onclick="nav('payments',this)" id="nav-pay">
+      <span class="nav-icon">💰</span>Payments
+      <span class="nav-badge" id="miss-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="nav('reconcile',this)"><span class="nav-icon">📋</span>Reconciliation</button>
+    <button class="nav-item" onclick="nav('outgoings',this)"><span class="nav-icon">📤</span>Outgoings</button>
+    <button class="nav-item" onclick="nav('reminders',this)"><span class="nav-icon">🔔</span>Reminders</button>
+    <button class="nav-item" onclick="nav('cashflow',this)"><span class="nav-icon">📈</span>Cashflow</button>
+    <button class="nav-item" onclick="nav('ledger',this)"><span class="nav-icon">🧾</span>Outgoings Ledger</button>
+  </div>
+  <div class="sidebar-footer">
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+    <button class="theme-btn btn-sm" onclick="openAdd()">+ Add</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="top-date"></div>
+      <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Customer</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card c-green"><div class="stat-label">Monthly Income</div><div class="stat-value c-green" id="s-income">$0</div><div class="stat-sub">Expected this month</div></div>
+        <div class="stat-card c-red"><div class="stat-label">Total Outgoings</div><div class="stat-value c-red" id="s-out">$0</div><div class="stat-sub">All EMIs + costs</div></div>
+        <div class="stat-card c-blue"><div class="stat-label">Net Cashflow</div><div class="stat-value c-blue" id="s-net">$0</div><div class="stat-sub">Income minus outgoings</div></div>
+        <div class="stat-card c-orange"><div class="stat-label">Overdue Payments</div><div class="stat-value c-orange" id="s-missed">0</div><div class="stat-sub">Customers overdue</div></div>
+        <div class="stat-card c-purple"><div class="stat-label">Active Customers</div><div class="stat-value c-purple" id="s-active">0</div><div class="stat-sub">Vehicles on road</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-header"><div class="card-title">⚠️ Needs Attention</div></div><div class="card-body" id="d-alerts"></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">💰 Recent Payments</div></div><div class="card-body" id="d-recent"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Customer Overview</div></div>
+        <div class="card-body tbl-wrap">
+          <table><thead><tr><th>Customer</th><th>Vehicle</th><th>Rent</th><th>Pay Day</th><th>Month Progress</th><th>Status</th></tr></thead>
+          <tbody id="d-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="section" id="sec-customers">
+      <div class="search-bar">
+        <input class="search-input" placeholder="🔍 Search name or rego..." oninput="filterCust(this.value)">
+        <div class="tab-row" style="margin:0">
+          <button class="tab active" onclick="custTab('all',this)">All</button>
+          <button class="tab" onclick="custTab('active',this)">✅ Active</button>
+          <button class="tab" onclick="custTab('personal',this)">🚗 Personal</button>
+          <button class="tab" onclick="custTab('other',this)">Other</button>
+        </div>
+      </div>
+      <div class="cust-grid" id="cust-grid"></div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="section" id="sec-payments">
+      <div class="tab-row">
+        <button class="tab active" onclick="payTab('week',this)">This Week</button>
+        <button class="tab" onclick="payTab('month',this)">This Month</button>
+        <button class="tab" onclick="payTab('overdue',this)">❌ Overdue</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title" id="pay-title">This Week</div><div id="pay-summary" style="font-size:12px;color:var(--text2)"></div></div>
+        <div class="card-body" id="pay-list"></div>
+      </div>
+    </div>
+
+
+    <!-- RECONCILIATION -->
+    <div class="section" id="sec-reconcile">
+      <div style="background:var(--blue-bg);border:1px solid rgba(79,142,247,0.25);color:var(--accent);padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:16px">
+        📋 Full reconciled payment history from 1 April 2026. Ashley missed 2 payments (6 Apr & 4 May). Jacqueline started 1 May, paid through 1 Jun.
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card c-green"><div class="stat-label">Total Collected Apr–Jun</div><div class="stat-value sv-green" id="rec-total">$0</div></div>
+        <div class="stat-card c-orange"><div class="stat-label">Ashley Missed</div><div class="stat-value sv-orange">2</div><div class="stat-sub">6 Apr & 4 May 2026</div></div>
+        <div class="stat-card c-blue"><div class="stat-label">Jacqueline Started</div><div class="stat-value sv-blue">1 May</div><div class="stat-sub">Paid 6 weeks to 1 Jun</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Payment Ledger — Apr to Jun 2026</div>
+          <div class="tab-row" style="margin:0">
+            <button class="tab active" onclick="recTab('all',this)">All</button>
+            <button class="tab" onclick="recTab('paid',this)">✅ Paid</button>
+            <button class="tab" onclick="recTab('missed',this)">❌ Missed</button>
+          </div>
+        </div>
+        <div id="rec-list" style="max-height:600px;overflow-y:auto;font-size:12px"></div>
+      </div>
+    </div>
+
+    <!-- OUTGOINGS -->
+    <div class="section" id="sec-outgoings">
+      <div class="stats-grid" id="out-stats"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Monthly Outgoings — tap ✓ to mark paid</div>
+          <button class="btn btn-ghost btn-sm" onclick="resetOutPaid()">Reset Month</button>
+        </div>
+        <div class="card-body" id="out-list"></div>
+      </div>
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="section" id="sec-reminders">
+      <div class="alert info">💡 Copy messages below and send via WhatsApp or SMS</div>
+      <div id="rem-list"></div>
+    </div>
+
+    <!-- CASHFLOW -->
+    <div class="section" id="sec-cashflow">
+      <div class="stats-grid">
+        <div class="stat-card c-green"><div class="stat-label">Monthly Income</div><div class="stat-value c-green" id="cf-inc">$0</div></div>
+        <div class="stat-card c-red"><div class="stat-label">Fleet EMIs</div><div class="stat-value c-red" id="cf-emi">$0</div></div>
+        <div class="stat-card c-gray"><div class="stat-label">Personal Cars</div><div class="stat-value c-gray" id="cf-per">$0</div></div>
+        <div class="stat-card c-orange"><div class="stat-label">Other Costs</div><div class="stat-value c-orange" id="cf-oth">$0</div></div>
+        <div class="stat-card c-blue"><div class="stat-label">Net Position</div><div class="stat-value c-blue" id="cf-net">$0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Full Breakdown</div></div>
+        <div class="card-body tbl-wrap">
+          <table><thead><tr><th>Item</th><th>Category</th><th>Monthly ($)</th></tr></thead>
+          <tbody id="cf-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTGOINGS LEDGER -->
+    <div class="section" id="sec-ledger">
+      <div style="background:var(--blue-bg);border:1px solid rgba(79,142,247,0.25);color:var(--accent);padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        🧾 Full outgoings ledger from 1 April 2026. TBC fields are left blank — tap any row to edit.
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="tab-row">
+        <button class="tab active" onclick="ledgerTab('all',this)">All</button>
+        <button class="tab" onclick="ledgerTab('Apr',this)">April</button>
+        <button class="tab" onclick="ledgerTab('May',this)">May</button>
+        <button class="tab" onclick="ledgerTab('Jun',this)">June</button>
+        <button class="tab" onclick="ledgerTab('EMI',this)">EMIs</button>
+        <button class="tab" onclick="ledgerTab('Insurance',this)">Insurance</button>
+        <button class="tab" onclick="ledgerTab('Personal',this)">Personal</button>
+        <button class="tab" onclick="ledgerTab('TBC',this)">❓ TBC</button>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stats-grid" id="ledger-stats"></div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Outgoings Ledger — Apr to Jun 2026</div>
+          <div style="display:flex;gap:8px;align-items:center"><div id="ledger-total" style="font-size:13px;font-weight:700;color:var(--red)"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Vehicle / Customer</th>
+                <th>Lender / Provider</th>
+                <th>Notes</th>
+              <th>Edit</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modal-form">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="form-title">Add Customer</div>
+      <button class="modal-close" onclick="closeModal('modal-form')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="f-id">
+      <div class="field-row">
+        <div class="field"><label class="field-label">Full Name</label><input class="field-input" id="f-name" placeholder="e.g. Shirley Samuel"></div>
+        <div class="field"><label class="field-label">Vehicle & Rego</label><input class="field-input" id="f-rego" placeholder="e.g. CLG128 (Carnival)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Status</label>
+          <select class="field-input" id="f-status">
+            <option value="active">✅ Active</option>
+            <option value="personal">🚗 Personal</option>
+            <option value="sold">⚠️ Sold/Closed</option>
+            <option value="other">❌ Other</option>
+          </select>
+        </div>
+        <div class="field"><label class="field-label">Loan / Lender</label><input class="field-input" id="f-loan" placeholder="e.g. MB Finance"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Rent Amount ($)</label><input class="field-input" id="f-rent" type="number" placeholder="e.g. 399"></div>
+        <div class="field"><label class="field-label">Frequency</label>
+          <select class="field-input" id="f-freq">
+            <option value="Weekly">Weekly</option>
+            <option value="Fortnightly">Fortnightly</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Pay Day</label>
+          <select class="field-input" id="f-payday">
+            <option value="">— Not set —</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </div>
+        <div class="field"><label class="field-label">Monthly EMI ($)</label><input class="field-input" id="f-emi" type="number" placeholder="e.g. 1372.25"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Deposit ($)</label><input class="field-input" id="f-deposit" type="number" placeholder="e.g. 2400"></div>
+        <div class="field"><label class="field-label">Loan Period</label><input class="field-input" id="f-period" placeholder="e.g. Jun 23 – Jun 26"></div>
+      </div>
+      <div class="field"><label class="field-label">Notes</label><input class="field-input" id="f-notes" placeholder="Any notes..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="f-delete" onclick="deleteCustomer()" style="display:none;margin-right:auto">🗑 Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-form')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCustomer()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="modal-detail">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title" id="det-title">Customer</div>
+      <button class="modal-close" onclick="closeModal('modal-detail')">×</button>
+    </div>
+    <div class="modal-body" id="det-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-detail')">Close</button>
+      <button class="btn btn-ghost" id="det-edit" onclick="">✏️ Edit</button>
+      <button class="btn btn-primary" id="det-pay" onclick="">💰 Mark Paid</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════ DATA ═══════════════════════════
+const VER = 'atw_crm_v15_apr26';
+
+const SEED_PAYMENTS = [
+  {"cid":1, "amount":877, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":2, "amount":399, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":3, "amount":360, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":4, "amount":300, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":5, "amount":615, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":6, "amount":770, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":7, "amount":300, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+  {"cid":11,"amount":600, "wk":"2026-W24","mk":"2026-6","date":"12/06/2026","ts":1781236076882},
+];
+
+const SEED_CUSTOMERS = [
+  {id:1, name:"Elizabeth",     rego:"1RO8JL (Pathfinder)", status:"active",   rent:877,  freq:"Fortnightly", payDay:"Wednesday", emi:0,       deposit:2500, loan:"Loan Free",                loanPeriod:"",                  notes:"",                         color:"#4F8EF7"},
+  {id:2, name:"Oznur",         rego:"AFC627 (C250)",        status:"active",   rent:399,  freq:"Weekly",      payDay:"Friday",    emi:1372.25, deposit:2400, loan:"MB Financial",             loanPeriod:"13/6/23 to 13/6/26", notes:"",                         color:"#F59E0B"},
+  {id:3, name:"Naijhana iMax", rego:"1WZ9LI (iMax)",        status:"active",   rent:360,  freq:"Weekly",      payDay:"Wednesday",          emi:1280.51, deposit:3800, loan:"Liberty",                  loanPeriod:"7/6/23 to 7/6/26",  notes:"Includes insurance only. Mazda RSA till warranty", color:"#22C55E"},
+  {id:4, name:"Nyajuok",       rego:"1XR2TH (Xtrail)",      status:"active",   rent:300,  freq:"Weekly",      payDay:"Friday",    emi:956.24,  deposit:2000, loan:"Power Tor",                loanPeriod:"13/6/23 to 13/5/26", notes:"RSA free 5 yrs from dealer", color:"#7C5CFC"},
+  {id:5, name:"Shirley",       rego:"CLG128 (Carnival)",    status:"active",   rent:615,  freq:"Weekly",      payDay:"Tuesday",   emi:1381.85, deposit:6000, loan:"Powertorque",              loanPeriod:"17-Aug-23",          notes:"Customer pays own insurance from Sep 2024", color:"#EF4444"},
+  {id:6, name:"Ashley",        rego:"1XD7TI (CX8)",         status:"active",   rent:770,  freq:"Fortnightly", payDay:"Thursday",  emi:916.58,  deposit:4200, loan:"",                         loanPeriod:"7-Mar-24 to 7-Mar-29",notes:"",                         color:"#06B6D4"},
+  {id:7, name:"Ashoka",        rego:"1OW3JB (Camry)",       status:"active",   rent:300,  freq:"Weekly",      payDay:"Friday",    emi:707,     deposit:1500, loan:"",                         loanPeriod:"6-Apr-24 to 6-Apr-29",notes:"RSA with Bravoauto",        color:"#F97316"},
+  {id:8, name:"Doan",          rego:"2EU9DP (Mitsubishi)",  status:"active",   rent:0,    freq:"Weekly",      payDay:"",          emi:743.31,  deposit:0,    loan:"",                         loanPeriod:"TBC",                notes:"Tracker has no fuel cut",   color:"#94A3B8"},
+  {id:9, name:"Bargass",       rego:"1QO9CY + 1QI3KW",     status:"other",    rent:0,    freq:"",            payDay:"",          emi:1553.81, deposit:0,    loan:"Debt Collector",           loanPeriod:"",                  notes:"With debt collector",       color:"#EF4444"},
+  {id:11,name:"Jacqueline",    rego:"Triton (TBC)",         status:"active",   rent:599,  freq:"Weekly",      payDay:"Wednesday", emi:1286.10, deposit:5200, loan:"Shift",                    loanPeriod:"Started 1 May 2026", notes:"Rent $599/wk (pays $600). Deposit $5,200 received. Total $7,000 deposited incl. deposit. Rego TBC.", color:"#EC4899"},
+  {id:10,name:"Sidra",         rego:"CUF638 (Kluger)",      status:"personal", rent:0,    freq:"",            payDay:"",          emi:0,       deposit:0,    loan:"Personal",                 loanPeriod:"",                  notes:"",                         color:"#8B5CF6"},
+];
+
+const OUTGOINGS = [
+  // day=0 means monthly recurring
+  {id:"o0",  day:1,  name:"Sidra Surmed Car EMI (Autopay)",  amount:692.55, cat:"EMI"},
+  {id:"o1",  day:1,  name:"ATO",                            amount:3000,   cat:"Tax"},
+  {id:"o1b", day:27, name:"Rupesh Car EMI (Plenti)",          amount:483.64, cat:"EMI"},
+  {id:"o2",  day:1,  name:"Buddy Tracker (6 cars)",         amount:138,    cat:"Business"},
+  {id:"o3",  day:1,  name:"Kluger EMI (Personal)",          amount:1445,   cat:"Personal"},
+  {id:"o4",  day:2,  name:"Naijhana Budget Insurance",      amount:196.09, cat:"Insurance"},
+  {id:"o5",  day:6,  name:"Ashoka Bingle Insurance",        amount:112.36, cat:"Insurance"},
+  {id:"o6",  day:6,  name:"Ashoka EMI",                     amount:707,    cat:"EMI"},
+  {id:"o7",  day:7,  name:"Naijhana Holden Shift EMI",      amount:1089.87,cat:"EMI"},
+  {id:"o7b", day:9,  name:"Jacqueline Triton Shift EMI",    amount:1286.10,cat:"EMI"},
+  {id:"o8",  day:8,  name:"Ashley EMI",                     amount:916.58, cat:"EMI"},
+  {id:"o9",  day:8,  name:"Naijhana iMax EMI",              amount:1280.51,cat:"EMI"},
+  {id:"o10", day:8,  name:"Doan Shift EMI",                 amount:743.31, cat:"EMI"},
+  {id:"o11", day:12, name:"Kluger Insurance (Personal)",    amount:232,    cat:"Personal"},
+  {id:"o12", day:12, name:"Sidra Adica Insurance",          amount:232.66, cat:"Insurance"},
+  {id:"o13", day:13, name:"Nyajuok EMI (Powertorque)",      amount:956.24, cat:"EMI"},
+  {id:"o14", day:14, name:"Shirley Budget Insurance",       amount:159.75, cat:"Insurance"},
+  {id:"o15", day:14, name:"Elizabeth Budget Insurance",     amount:211.75, cat:"Insurance"},
+  {id:"o16", day:15, name:"Business Insurance (Quickpay)",  amount:104.72, cat:"Insurance"},
+  {id:"o17", day:15, name:"Nyajuok EMI 2nd (Powertorque)",  amount:956.24, cat:"EMI"},
+  {id:"o18", day:15, name:"Bookkeeping",                    amount:300,    cat:"Business"},
+  {id:"o19", day:21, name:"Oznur EMI (MB Financial)",       amount:1372.25,cat:"EMI"},
+  {id:"o20", day:21, name:"Shirley EMI (Powertorque)",      amount:1381.85,cat:"EMI"},
+  {id:"o21", day:22, name:"Oznur QBE Insurance",            amount:245.76, cat:"Insurance"},
+  {id:"o22", day:26, name:"Ashley Budget Insurance",        amount:178.03, cat:"Insurance"},
+  {id:"o23", day:26, name:"Bargass duo EMI",                amount:1553.81,cat:"EMI"},
+  {id:"o24", day:27, name:"BMW EMI — Westpac",              amount:4087.55,cat:"Personal"},
+  {id:"o25", day:29, name:"Nyajuok Bingle Insurance",       amount:141.46, cat:"Insurance"},
+  {id:"o26", day:0,  name:"Microsoft",                      amount:21.6,   cat:"Business"},
+  {id:"o27", day:0,  name:"Zoho Books",                     amount:198,    cat:"Business"},
+  {id:"o28", day:0,  name:"Zoho CRM",                       amount:422,    cat:"Business"},
+  {id:"o29", day:0,  name:"Zoho Contract",                  amount:465,    cat:"Business"},
+  {id:"o30", day:15, name:"Accountant (quarterly)",         amount:550,    cat:"Business"},
+];
+
+// ═══════════════════════════ STORAGE ═══════════════════════════
+function loadData(){
+  try{
+    const s = localStorage.getItem(VER);
+    if(s){ const d=JSON.parse(s); if(d&&d.customers) return d; }
+  }catch(e){}
+  const seed = {customers:JSON.parse(JSON.stringify(SEED_CUSTOMERS)), payments:JSON.parse(JSON.stringify(SEED_PAYMENTS)), outPaid:{}};
+  localStorage.setItem(VER, JSON.stringify(seed));
+  return seed;
+}
+const _d = loadData();
+let customers = _d.customers;
+let payments  = _d.payments;
+let outPaid   = _d.outPaid || {};
+
+function save(){ localStorage.setItem(VER, JSON.stringify({customers, payments, outPaid})); }
+
+// ═══════════════════════════ HELPERS ═══════════════════════════
+const $  = id => document.getElementById(id);
+const fmt  = n => '$'+(n||0).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmt2 = n => '$'+(n||0).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const ini  = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const monthlyRent = c => !c.rent?0:(c.freq==='Weekly'?c.rent*4.33:c.rent*2);
+
+const DAY_NUM = {Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
+
+function weekKey(){
+  const d=new Date(), sy=new Date(d.getFullYear(),0,1);
+  const w=Math.ceil(((d-sy)/86400000+sy.getDay()+1)/7);
+  return `${d.getFullYear()}-W${w}`;
+}
+function monthKey(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}`; }
+function outMonthKey(){ return monthKey(); }
+
+function hasPaidWeek(id){ return payments.some(p=>p.cid===id&&p.wk===weekKey()); }
+function paidCountMonth(id){ return payments.filter(p=>p.cid===id&&p.mk===monthKey()).length; }
+
+function daysUntil(day){
+  if(!day) return null;
+  const t=new Date().getDay(), dn=DAY_NUM[day]||5;
+  const today = t===0?7:t, target=dn===0?7:dn;
+  const diff = target-today;
+  return diff<=0?diff+7:diff;
+}
+function payDayPassed(day){
+  if(!day) return false;
+  const t=new Date().getDay(), dn=DAY_NUM[day]||5;
+  const today=t===0?7:t, target=dn===0?7:dn;
+  return today>target;
+}
+function isOverdue(c){
+  if(!c.rent||c.status!=='active') return false;
+  return !hasPaidWeek(c.id) && payDayPassed(c.payDay);
+}
+function payDayLabel(c){
+  if(!c.payDay) return c.freq||'—';
+  const paid=hasPaidWeek(c.id), od=isOverdue(c), days=daysUntil(c.payDay);
+  if(paid) return `✅ ${c.payDay}`;
+  if(od)   return `❌ Overdue (${c.payDay})`;
+  if(days===0) return `📅 TODAY`;
+  if(days===1) return `⏰ Tomorrow`;
+  return `📅 ${c.payDay} (${days}d)`;
+}
+
+const CAT_COLOR = {EMI:'red',Insurance:'orange',Business:'blue',Tax:'purple',Personal:'gray',Tracker:'green'};
+
+// ═══════════════════════════ NAVIGATION ═══════════════════════════
+const PAGE_TITLES = {dashboard:'Dashboard',customers:'Customers',payments:'Payments',reconcile:'Reconciliation',ledger:'Outgoings Ledger',outgoings:'Outgoings',reminders:'Reminders',cashflow:'Cashflow'};
+let currentSection = 'dashboard';
+
+function nav(sec, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  $('sec-'+sec).classList.add('active');
+  el.classList.add('active');
+  $('page-title').textContent = PAGE_TITLES[sec];
+  currentSection = sec;
+  if(window.innerWidth<=768) toggleSidebar(true);
+  renderSection(sec);
+}
+function renderSection(s){
+  if(s==='dashboard') renderDash();
+  else if(s==='customers') renderCustomers();
+  else if(s==='payments') renderPayments('week');
+  else if(s==='outgoings') renderOutgoings();
+  else if(s==='reminders') renderReminders();
+  else if(s==='cashflow') renderCashflow();
+}
+function toggleSidebar(close){
+  const s=$('sidebar'),o=$('overlay');
+  if(close||s.classList.contains('open')){ s.classList.remove('open');o.classList.remove('show'); }
+  else{ s.classList.add('open');o.classList.add('show'); }
+}
+
+// ═══════════════════════════ THEME ═══════════════════════════
+let darkMode = localStorage.getItem('atw_theme')!=='light';
+function applyTheme(){ document.body.classList.toggle('light',!darkMode); $('theme-btn').textContent=darkMode?'☀️ Light':'🌙 Dark'; }
+function toggleTheme(){ darkMode=!darkMode; localStorage.setItem('atw_theme',darkMode?'dark':'light'); applyTheme(); }
+applyTheme();
+
+// ═══════════════════════════ DASHBOARD ═══════════════════════════
+function renderDash(){
+  const active = customers.filter(c=>c.status==='active');
+  const income = active.reduce((s,c)=>s+monthlyRent(c),0);
+  const totalOut = OUTGOINGS.reduce((s,o)=>s+o.amount,0);
+  const net = income - totalOut;
+  const overdue = active.filter(c=>c.rent>0&&isOverdue(c));
+
+  $('s-income').textContent = fmt(income);
+  $('s-out').textContent    = fmt(totalOut);
+  $('s-net').textContent    = fmt(Math.abs(net));
+  $('s-net').className      = 'stat-value '+(net>=0?'c-green':'c-red');
+  $('s-missed').textContent = overdue.length;
+  $('s-active').textContent = active.length;
+  const mb = $('miss-badge');
+  mb.textContent = overdue.length; mb.style.display = overdue.length?'':'none';
+
+  // Alerts
+  let alerts = '';
+  overdue.forEach(c=>{ alerts+=`<div class="alert danger">❌ <strong>${c.name}</strong> — overdue since ${c.payDay||'this week'} (${fmt(c.rent)})</div>`; });
+  active.filter(c=>c.rent>0&&!hasPaidWeek(c.id)&&daysUntil(c.payDay)===0).forEach(c=>{
+    alerts+=`<div class="alert warn">📅 <strong>${c.name}</strong> — due TODAY ${fmt(c.rent)}</div>`;
+  });
+  if(active.find(c=>!c.rent)) alerts+=`<div class="alert warn">⚠️ <strong>Doan</strong> — rent not started yet</div>`;
+  if(net<0) alerts+=`<div class="alert warn">⚠️ Monthly outgoings exceed income by ${fmt(Math.abs(net))}</div>`;
+  $('d-alerts').innerHTML = alerts||'<div class="alert success">✅ All looking good!</div>';
+
+  // Recent payments
+  const rec = [...payments].sort((a,b)=>b.ts-a.ts).slice(0,5);
+  $('d-recent').innerHTML = rec.length ? rec.map(p=>{
+    const c=customers.find(x=>x.id===p.cid); if(!c) return '';
+    return `<div class="pay-row">
+      <div class="avatar" style="background:${c.color}20;color:${c.color}">${ini(c.name)}</div>
+      <div class="pay-info"><div class="pay-name">${c.name}</div><div class="pay-sub">${p.date}</div></div>
+      <div class="pay-amount" style="color:var(--green)">${fmt(p.amount)}</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--text2);font-size:13px">No payments recorded yet</div>';
+
+  // Table
+  $('d-tbody').innerHTML = active.map(c=>{
+    const paid=hasPaidWeek(c.id), od=isOverdue(c);
+    const mp=paidCountMonth(c.id), exp=c.freq==='Weekly'?4:2;
+    const pct=Math.min(100,Math.round(mp/exp*100));
+    const days=c.payDay?daysUntil(c.payDay):null;
+    let dayBadge;
+    if(!c.rent) dayBadge=`<span class="badge gray">TBC</span>`;
+    else if(paid) dayBadge=`<span class="badge green">✅ ${c.payDay||c.freq}</span>`;
+    else if(od)   dayBadge=`<span class="badge red">❌ Overdue</span>`;
+    else if(days===0) dayBadge=`<span class="badge orange">📅 TODAY</span>`;
+    else if(days===1) dayBadge=`<span class="badge orange">⏰ Tomorrow</span>`;
+    else dayBadge=`<span class="badge blue">${c.payDay||c.freq}${days?' ('+days+'d)':''}</span>`;
+    return `<tr onclick="showDetail(${c.id})" style="cursor:pointer">
+      <td><strong>${c.name}</strong></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">${c.rego}</td>
+      <td style="font-weight:700">${c.rent?fmt(c.rent):'<span style="color:var(--orange)">TBC</span>'}</td>
+      <td>${dayBadge}</td>
+      <td><div style="font-size:11px;color:var(--text2);margin-bottom:3px">${mp}/${exp} payments</div>
+        <div class="progress-bg"><div class="progress-fill" style="width:${pct}%;background:${pct===100?'var(--green)':pct>50?'var(--orange)':'var(--red)'}"></div></div></td>
+      <td><span class="badge ${paid?'green':od?'red':'orange'}">${paid?'✅ Paid':od?'❌ Overdue':'⏳ Upcoming'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════ CUSTOMERS ═══════════════════════════
+let custSearch='', custStatusFilter='all';
+function renderCustomers(){
+  let list = customers;
+  if(custStatusFilter==='active') list=list.filter(c=>c.status==='active');
+  else if(custStatusFilter==='personal') list=list.filter(c=>c.status==='personal');
+  else if(custStatusFilter==='other') list=list.filter(c=>c.status!=='active'&&c.status!=='personal');
+  if(custSearch) list=list.filter(c=>c.name.toLowerCase().includes(custSearch)||c.rego.toLowerCase().includes(custSearch));
+
+  $('cust-grid').innerHTML = list.map(c=>{
+    const mr=monthlyRent(c), net=mr-c.emi;
+    const paid=hasPaidWeek(c.id), od=isOverdue(c);
+    const stBadge = {active:'green',personal:'blue',sold:'orange',other:'red'}[c.status]||'gray';
+    const stLabel = {active:'Active',personal:'Personal',sold:'Sold',other:'Other'}[c.status]||c.status;
+    return `<div class="cust-card" onclick="showDetail(${c.id})">
+      <div class="cust-top">
+        <div class="avatar" style="background:${c.color}20;color:${c.color};font-size:15px">${ini(c.name)}</div>
+        <div class="cust-info">
+          <div class="cust-name">${c.name}</div>
+          <div class="cust-rego">${c.rego}</div>
+        </div>
+        <div class="cust-actions">
+          <span class="badge ${stBadge}">${stLabel}</span>
+          <button class="edit-btn" onclick="event.stopPropagation();openEdit(${c.id})">✏️</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row"><span class="info-label">Rent</span><span class="info-val" style="color:var(--green)">${c.rent?fmt(c.rent):'TBC'}</span></div>
+      <div class="info-row"><span class="info-label">Frequency</span><span class="info-val">${c.freq||'—'}</span></div>
+      <div class="info-row"><span class="info-label">Pay Day</span><span class="info-val">${c.payDay?'📅 '+c.payDay:'—'}</span></div>
+      <div class="info-row"><span class="info-label">EMI</span><span class="info-val" style="color:var(--red)">${c.emi?fmt(c.emi):'—'}</span></div>
+      <div class="info-row"><span class="info-label">Deposit</span><span class="info-val">${c.deposit?fmt(c.deposit):'—'}</span></div>
+      ${mr?`<div class="divider"></div>
+      <div class="info-row"><span class="info-label">Monthly Income</span><span class="info-val">${fmt(mr)}</span></div>
+      <div class="info-row"><span class="info-label">Net / Month</span><span class="info-val" style="color:${net>=0?'var(--green)':'var(--red)'}">${net>=0?'+':''}${fmt(net)}</span></div>`:''}
+      ${c.status==='active'&&c.rent?`<div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;color:var(--text2)">${payDayLabel(c)}</span>
+        ${!paid?`<button class="mark-btn ${od?'overdue':'unpaid'}" onclick="event.stopPropagation();markPaid(${c.id})">Mark Paid</button>`:'<span class="badge green">✅ Paid</span>'}
+      </div>`:''}
+      ${c.notes?`<div style="margin-top:10px;font-size:11px;color:var(--text3);line-height:1.5">📝 ${c.notes}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function filterCust(v){ custSearch=v.toLowerCase(); renderCustomers(); }
+function custTab(v,el){
+  custStatusFilter=v;
+  document.querySelectorAll('#sec-customers .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCustomers();
+}
+
+// ═══════════════════════════ DETAIL MODAL ═══════════════════════════
+function showDetail(id){
+  const c=customers.find(x=>x.id===id); if(!c) return;
+  $('det-title').textContent = c.name+' — '+c.rego;
+  const paid=hasPaidWeek(c.id), od=isOverdue(c);
+  const history = [...payments].filter(p=>p.cid===id).sort((a,b)=>b.ts-a.ts).slice(0,6);
+  $('det-body').innerHTML = `
+    <div class="info-row"><span class="info-label">Status</span><span class="badge ${{active:'green',personal:'blue',sold:'orange',other:'red'}[c.status]||'gray'}">${c.status}</span></div>
+    <div class="info-row"><span class="info-label">Weekly Rent</span><span class="info-val" style="color:var(--green)">${fmt2(c.rent)}</span></div>
+    <div class="info-row"><span class="info-label">Frequency</span><span class="info-val">${c.freq||'—'}</span></div>
+    <div class="info-row"><span class="info-label">Pay Day</span><span class="info-val">${c.payDay?'📅 Every '+c.payDay:'—'}</span></div>
+    <div class="info-row"><span class="info-label">This Week</span><span class="badge ${paid?'green':od?'red':'orange'}">${paid?'✅ Paid':od?'❌ Overdue':'⏳ Not yet due'}</span></div>
+    <div class="info-row"><span class="info-label">Monthly EMI</span><span class="info-val" style="color:var(--red)">${fmt2(c.emi)}</span></div>
+    <div class="info-row"><span class="info-label">Deposit</span><span class="info-val">${fmt2(c.deposit)}</span></div>
+    <div class="info-row"><span class="info-label">Loan</span><span class="info-val">${c.loan||'—'}</span></div>
+    <div class="info-row"><span class="info-label">Loan Period</span><span class="info-val" style="font-size:11px">${c.loanPeriod||'—'}</span></div>
+    ${c.notes?`<div class="alert info" style="margin-top:10px">📝 ${c.notes}</div>`:''}
+    <div class="divider"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:10px">Payment History</div>
+    ${history.length?history.map(p=>`<div class="pay-row" style="padding:7px 0"><div class="pay-info"><div class="pay-name" style="font-size:12px">${p.date}</div></div><div style="color:var(--green);font-weight:700;font-size:13px">${fmt(p.amount)}</div></div>`).join(''):'<div style="color:var(--text2);font-size:12px">No payments recorded yet</div>'}
+  `;
+  $('det-edit').onclick = ()=>{ closeModal('modal-detail'); openEdit(id); };
+  $('det-pay').style.display = (c.status==='active'&&c.rent&&!paid)?'':'none';
+  $('det-pay').onclick = ()=>{ markPaid(id); closeModal('modal-detail'); };
+  $('modal-detail').classList.add('show');
+}
+
+// ═══════════════════════════ PAYMENTS ═══════════════════════════
+let payTabActive='week';
+function payTab(t,el){
+  payTabActive=t;
+  document.querySelectorAll('#sec-payments .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderPayments(t);
+}
+function renderPayments(tab){
+  const active=customers.filter(c=>c.status==='active'&&c.rent>0);
+  let html='', due=0, collected=0;
+  active.forEach(c=>{
+    const paid=hasPaidWeek(c.id), od=isOverdue(c);
+    const mp=paidCountMonth(c.id), exp=c.freq==='Weekly'?4:2;
+    const days=c.payDay?daysUntil(c.payDay):null;
+    if(tab==='overdue'&&!od) return;
+    if(tab==='week'){ due+=c.rent; if(paid) collected+=c.rent; }
+    let badge;
+    if(paid) badge=`<span class="badge green">✅ Paid</span>`;
+    else if(od) badge=`<span class="badge red">❌ Overdue (${c.payDay})</span>`;
+    else if(days===0) badge=`<span class="badge orange">📅 Due Today</span>`;
+    else if(days===1) badge=`<span class="badge orange">⏰ Due Tomorrow</span>`;
+    else badge=`<span class="badge blue">Due ${c.payDay||c.freq}${days?' in '+days+'d':''}</span>`;
+    html+=`<div class="pay-row">
+      <div class="avatar" style="background:${c.color}20;color:${c.color}">${ini(c.name)}</div>
+      <div class="pay-info">
+        <div class="pay-name">${c.name}</div>
+        <div class="pay-sub">${c.freq}${c.payDay?' · '+c.payDay:''} · ${c.rego} · ${mp}/${exp} this month</div>
+      </div>
+      <div class="pay-right">
+        <div class="pay-amount" style="color:${paid?'var(--green)':od?'var(--red)':'var(--text2)'}">${fmt(c.rent)}</div>
+        ${badge}
+      </div>
+      ${!paid?`<button class="mark-btn ${od?'overdue':'unpaid'}" onclick="markPaid(${c.id})">Mark Paid</button>`:''}
+    </div>`;
+  });
+  $('pay-list').innerHTML = html||`<div style="color:var(--text2);font-size:13px;padding:8px 0">${tab==='overdue'?'✅ No overdue payments!':'No payments to show'}</div>`;
+  $('pay-title').textContent = {week:'This Week',month:'This Month',overdue:'Overdue Payments'}[tab];
+  $('pay-summary').textContent = tab==='week'?`${fmt(collected)} / ${fmt(due)} collected`:'';
+}
+
+function markPaid(id){
+  const c=customers.find(x=>x.id===id); if(!c) return;
+  payments.push({cid:id, amount:c.rent, wk:weekKey(), mk:monthKey(), date:new Date().toLocaleDateString('en-AU'), ts:Date.now()});
+  save();
+  renderAll();
+}
+
+// ═══════════════════════════ OUTGOINGS ═══════════════════════════
+function renderOutgoings(){
+  const mk = outMonthKey();
+  let emi=0, ins=0, biz=0, per=0, tax=0;
+  OUTGOINGS.forEach(o=>{
+    if(o.cat==='EMI') emi+=o.amount;
+    else if(o.cat==='Insurance') ins+=o.amount;
+    else if(o.cat==='Personal') per+=o.amount;
+    else if(o.cat==='Tax') tax+=o.amount;
+    else biz+=o.amount;
+  });
+  $('out-stats').innerHTML = `
+    <div class="stat-card c-red"><div class="stat-label">Fleet EMIs</div><div class="stat-value c-red">${fmt(emi)}</div></div>
+    <div class="stat-card c-orange"><div class="stat-label">Insurance</div><div class="stat-value c-orange">${fmt(ins)}</div></div>
+    <div class="stat-card c-blue"><div class="stat-label">Business</div><div class="stat-value c-blue">${fmt(biz)}</div></div>
+    <div class="stat-card c-gray"><div class="stat-label">Personal Cars</div><div class="stat-value c-gray">${fmt(per)}</div><div class="stat-sub">Kluger + BMW</div></div>
+    <div class="stat-card c-purple"><div class="stat-label">Tax / ATO</div><div class="stat-value c-purple">${fmt(tax)}</div></div>
+    <div class="stat-card c-red"><div class="stat-label">TOTAL</div><div class="stat-value c-red">${fmt(emi+ins+biz+per+tax)}</div></div>
+  `;
+  const sorted=[...OUTGOINGS].sort((a,b)=>(a.day||99)-(b.day||99));
+  $('out-list').innerHTML = sorted.map(o=>{
+    const key=`${mk}-${o.id}`, done=!!outPaid[key];
+    const cc=CAT_COLOR[o.cat]||'gray';
+    return `<div class="out-row">
+      <div class="out-day">${o.day||'Mo'}</div>
+      <div class="out-info">
+        <div class="out-name">${o.name}</div>
+        <div class="out-cat"><span class="badge ${cc}">${o.cat}</span></div>
+      </div>
+      <div class="out-amount">${fmt2(o.amount)}</div>
+      <button class="check-btn ${done?'done':''}" onclick="toggleOut('${key}',this)">${done?'✓':''}</button>
+    </div>`;
+  }).join('');
+}
+function toggleOut(key,btn){
+  if(outPaid[key]){ delete outPaid[key]; btn.className='check-btn'; btn.textContent=''; }
+  else { outPaid[key]=true; btn.className='check-btn done'; btn.textContent='✓'; }
+  save();
+}
+function resetOutPaid(){ if(confirm('Reset all paid outgoings for this month?')){ outPaid={}; save(); renderOutgoings(); } }
+
+// ═══════════════════════════ REMINDERS ═══════════════════════════
+function renderReminders(){
+  const overdue = customers.filter(c=>c.status==='active'&&c.rent>0&&isOverdue(c));
+  const today   = customers.filter(c=>c.status==='active'&&c.rent>0&&!hasPaidWeek(c.id)&&daysUntil(c.payDay)===0&&!isOverdue(c));
+  const tomorrow= customers.filter(c=>c.status==='active'&&c.rent>0&&!hasPaidWeek(c.id)&&daysUntil(c.payDay)===1);
+  let html='';
+  function block(list, label, color, msgFn){
+    if(!list.length) return;
+    html+=`<div class="section-label" style="color:${color}">${label}</div>`;
+    list.forEach(c=>{
+      const msg=msgFn(c);
+      html+=`<div class="rem-box">
+        <div class="rem-header"><span>${c.name} <span style="font-size:11px;color:var(--text2)">${c.rego}</span></span><span class="badge ${CAT_COLOR.EMI||'gray'}" style="font-size:10px">${fmt(c.rent)}</span></div>
+        <div class="rem-msg">${msg}</div>
+        <button class="copy-btn" onclick="copyText(this,'${msg.replace(/'/g,"\\'")}')">📋 Copy</button>
+      </div>`;
+    });
+  }
+  block(overdue,'❌ Overdue','var(--red)',c=>`Hi ${c.name.split(' ')[0]}, your ${c.freq.toLowerCase()} car payment of ${fmt(c.rent)} was due ${c.payDay}. Please transfer as soon as possible. Thank you 🙏`);
+  block(today,'📅 Due Today','var(--orange)',c=>`Hi ${c.name.split(' ')[0]}, just a reminder your ${c.freq.toLowerCase()} car payment of ${fmt(c.rent)} is due today. Please transfer when you can. Thanks 🙏`);
+  block(tomorrow,'⏰ Due Tomorrow','var(--accent)',c=>`Hi ${c.name.split(' ')[0]}, heads up — your ${c.freq.toLowerCase()} car payment of ${fmt(c.rent)} is due tomorrow (${c.payDay}). Thanks 🙏`);
+  $('rem-list').innerHTML = html||'<div class="alert success">✅ All customers paid — nothing to chase!</div>';
+}
+function copyText(btn,msg){
+  navigator.clipboard.writeText(msg).then(()=>{ btn.textContent='✅ Copied!'; setTimeout(()=>btn.textContent='📋 Copy',2000); });
+}
+
+// ═══════════════════════════ CASHFLOW ═══════════════════════════
+function renderCashflow(){
+  const active=customers.filter(c=>c.status==='active');
+  const income=active.reduce((s,c)=>s+monthlyRent(c),0);
+  let emiT=0,insT=0,bizT=0,perT=0,taxT=0;
+  OUTGOINGS.forEach(o=>{
+    if(o.cat==='EMI') emiT+=o.amount;
+    else if(o.cat==='Insurance') insT+=o.amount;
+    else if(o.cat==='Personal') perT+=o.amount;
+    else if(o.cat==='Tax') taxT+=o.amount;
+    else bizT+=o.amount;
+  });
+  const totalOut=emiT+insT+bizT+perT+taxT;
+  const net=income-totalOut;
+  $('cf-inc').textContent=fmt(income);
+  $('cf-emi').textContent=fmt(emiT);
+  $('cf-per').textContent=fmt(perT);
+  $('cf-oth').textContent=fmt(insT+bizT+taxT);
+  $('cf-net').textContent=fmt(Math.abs(net));
+  $('cf-net').className='stat-value '+(net>=0?'c-green':'c-red');
+
+  let rows='';
+  active.forEach(c=>{ const m=monthlyRent(c); if(!m) return;
+    rows+=`<tr><td>${c.name}</td><td><span class="badge green">Income</span></td><td style="color:var(--green);font-weight:700">${fmt(m)}</td></tr>`;
+  });
+  rows+=`<tr><td colspan="3" style="background:var(--bg3);padding:6px 14px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">OUTGOINGS</td></tr>`;
+  const cats={};
+  OUTGOINGS.forEach(o=>{ cats[o.cat]=(cats[o.cat]||0)+o.amount; });
+  Object.entries(cats).sort((a,b)=>b[1]-a[1]).forEach(([cat,amt])=>{
+    rows+=`<tr><td>${cat}</td><td><span class="badge ${CAT_COLOR[cat]||'gray'}">${cat}</span></td><td style="color:var(--red);font-weight:700">(${fmt(amt)})</td></tr>`;
+  });
+  rows+=`<tr style="border-top:2px solid var(--border)"><td colspan="2" style="font-weight:800;font-size:14px">NET CASHFLOW</td><td style="font-weight:800;font-size:14px;color:${net>=0?'var(--green)':'var(--red)'}">${net>=0?'+':''}${fmt(net)}</td></tr>`;
+  $('cf-tbody').innerHTML=rows;
+}
+
+// ═══════════════════════════ ADD / EDIT CUSTOMER ═══════════════════════════
+function openAdd(){
+  $('form-title').textContent='Add Customer';
+  $('f-id').value='';
+  ['f-name','f-rego','f-loan','f-rent','f-emi','f-deposit','f-period','f-notes'].forEach(i=>$(i).value='');
+  $('f-status').value='active'; $('f-freq').value='Weekly'; $('f-payday').value='';
+  $('f-delete').style.display='none';
+  $('modal-form').classList.add('show');
+}
+function openEdit(id){
+  const c=customers.find(x=>x.id===id); if(!c) return;
+  $('form-title').textContent='Edit Customer';
+  $('f-id').value=id;
+  $('f-name').value=c.name; $('f-rego').value=c.rego;
+  $('f-status').value=c.status; $('f-freq').value=c.freq||'Weekly';
+  $('f-payday').value=c.payDay||''; $('f-loan').value=c.loan||'';
+  $('f-rent').value=c.rent||''; $('f-emi').value=c.emi||'';
+  $('f-deposit').value=c.deposit||''; $('f-period').value=c.loanPeriod||'';
+  $('f-notes').value=c.notes||'';
+  $('f-delete').style.display='';
+  $('modal-form').classList.add('show');
+}
+function saveCustomer(){
+  const name=$('f-name').value.trim();
+  if(!name){ alert('Please enter a name'); return; }
+  const COLORS=['#4F8EF7','#22C55E','#F59E0B','#EF4444','#7C5CFC','#06B6D4','#F97316','#8B5CF6','#EC4899','#14B8A6'];
+  const data={
+    name, rego:$('f-rego').value.trim(),
+    status:$('f-status').value, freq:$('f-freq').value,
+    payDay:$('f-payday').value, loan:$('f-loan').value.trim(),
+    rent:parseFloat($('f-rent').value)||0,
+    emi:parseFloat($('f-emi').value)||0,
+    deposit:parseFloat($('f-deposit').value)||0,
+    loanPeriod:$('f-period').value.trim(),
+    notes:$('f-notes').value.trim(),
+  };
+  const id=parseInt($('f-id').value);
+  if(id){
+    const idx=customers.findIndex(x=>x.id===id);
+    if(idx>-1) customers[idx]={...customers[idx],...data};
+  } else {
+    customers.push({id:Date.now(),...data,color:COLORS[customers.length%COLORS.length]});
+  }
+  save(); closeModal('modal-form'); renderAll();
+}
+function deleteCustomer(){
+  const id=parseInt($('f-id').value);
+  const c=customers.find(x=>x.id===id);
+  if(!c||!confirm(`Delete ${c.name}? This cannot be undone.`)) return;
+  customers=customers.filter(x=>x.id!==id);
+  save(); closeModal('modal-form'); renderAll(); renderCustomers();
+}
+
+// ═══════════════════════════ MODAL ═══════════════════════════
+function closeModal(id){ $(id).classList.remove('show'); }
+
+// ═══════════════════════════ RENDER ALL ═══════════════════════════
+function renderAll(){
+  renderDash();
+  if(currentSection==='customers') renderCustomers();
+  if(currentSection==='payments') renderPayments(payTabActive);
+  if(currentSection==='outgoings') renderOutgoings();
+  if(currentSection==='reminders') renderReminders();
+  if(currentSection==='cashflow') renderCashflow();
+}
+
+
+// ══ RECONCILED PAYMENT HISTORY ══
+const HISTORY = [
+  // APRIL 2026
+  {date:"1-Apr-26",  customer:"Naijhana iMax", amount:350.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"2-Apr-26",  customer:"Shirley",        amount:605,    paid:true,  desc:"Weekly Payment"},
+  {date:"2-Apr-26",  customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"2-Apr-26",  customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"4-Apr-26",  customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"6-Apr-26",  customer:"Ashley",         amount:0,      paid:false, desc:"Fortnightly Payment — MISSED"},
+  {date:"7-Apr-26",  customer:"Elizabeth",      amount:803,    paid:true,  desc:"Fortnightly Payment"},
+  {date:"8-Apr-26",  customer:"Ashoka",         amount:282.7,  paid:true,  desc:"Weekly Payment"},
+  {date:"9-Apr-26",  customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"9-Apr-26",  customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"9-Apr-26",  customer:"Naijhana iMax",  amount:350.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"13-Apr-26", customer:"Shirley",        amount:605,    paid:true,  desc:"Weekly Payment"},
+  {date:"15-Apr-26", customer:"Elizabeth",      amount:812.93, paid:true,  desc:"Fortnightly Payment"},
+  {date:"16-Apr-26", customer:"Ashoka",         amount:580,    paid:true,  desc:"Weekly Payment"},
+  {date:"17-Apr-26", customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"17-Apr-26", customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"21-Apr-26", customer:"Shirley",        amount:605,    paid:true,  desc:"Weekly Payment"},
+  {date:"22-Apr-26", customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"24-Apr-26", customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"28-Apr-26", customer:"Shirley",        amount:605,    paid:true,  desc:"Weekly Payment"},
+  {date:"29-Apr-26", customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"29-Apr-26", customer:"Elizabeth",      amount:815.48, paid:true,  desc:"Fortnightly Payment"},
+  {date:"29-Apr-26", customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"30-Apr-26", customer:"Ashley",         amount:830,    paid:true,  desc:"Fortnightly Payment"},
+  // MAY 2026
+  {date:"1-May-26",  customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"1-May-26",  customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"1-May-26",  customer:"Jacqueline",     amount:5200,   paid:true,  desc:"Deposit received — $5,200"},
+  {date:"4-May-26",  customer:"Shirley",        amount:605,    paid:true,  desc:"Weekly Payment"},
+  {date:"4-May-26",  customer:"Ashley",         amount:0,      paid:false, desc:"Fortnightly Payment — MISSED"},
+  {date:"4-May-26",  customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"7-May-26",  customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"7-May-26",  customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"8-May-26",  customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"11-May-26", customer:"Shirley",        amount:605,    paid:true,  desc:"Weekly Payment"},
+  {date:"11-May-26", customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"13-May-26", customer:"Elizabeth",      amount:812.47, paid:true,  desc:"Fortnightly Payment"},
+  {date:"14-May-26", customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"14-May-26", customer:"Ashley",         amount:830,    paid:true,  desc:"Fortnightly Payment"},
+  {date:"15-May-26", customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"15-May-26", customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"18-May-26", customer:"Shirley",        amount:655,    paid:true,  desc:"Weekly Payment (includes extra)"},
+  {date:"18-May-26", customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"21-May-26", customer:"Nyajuok",        amount:292,    paid:true,  desc:"Weekly Payment"},
+  {date:"22-May-26", customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"22-May-26", customer:"Jacqueline",     amount:600,    paid:true,  desc:"Weekly Rent Payment 1"},
+  {date:"25-May-26", customer:"Shirley",        amount:615,    paid:true,  desc:"Weekly Payment"},
+  {date:"25-May-26", customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"27-May-26", customer:"Elizabeth",      amount:812.48, paid:true,  desc:"Fortnightly Payment"},
+  {date:"27-May-26", customer:"Jacqueline",     amount:600,    paid:true,  desc:"Weekly Rent Payment 2"},
+  {date:"29-May-26", customer:"Nyajuok",        amount:300,    paid:true,  desc:"Weekly Payment"},
+  {date:"29-May-26", customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"29-May-26", customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"29-May-26", customer:"Ashley",         amount:758,    paid:true,  desc:"Fortnightly Payment (partial)"},
+  // JUNE 2026
+  {date:"4-Jun-26",  customer:"Jacqueline",     amount:600,    paid:true,  desc:"Weekly Rent Payment 3"},
+  {date:"2-Jun-26",  customer:"Shirley",        amount:615,    paid:true,  desc:"Weekly Payment"},
+  {date:"3-Jun-26",  customer:"Naijhana iMax",  amount:360.9,  paid:true,  desc:"Weekly Payment"},
+  {date:"5-Jun-26",  customer:"Ashoka",         amount:290,    paid:true,  desc:"Weekly Payment"},
+  {date:"5-Jun-26",  customer:"Nyajuok",        amount:300,    paid:true,  desc:"Weekly Payment"},
+  {date:"5-Jun-26",  customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly Payment"},
+  {date:"11-Jun-26", customer:"Ashley",         amount:780,    paid:true,  desc:"Fortnightly Payment"},
+  {date:"12-Jun-26", customer:"Elizabeth",      amount:877,    paid:true,  desc:"Fortnightly — Week of 12 Jun"},
+  {date:"12-Jun-26", customer:"Oznur",          amount:399,    paid:true,  desc:"Weekly — Week of 12 Jun"},
+  {date:"12-Jun-26", customer:"Naijhana iMax",  amount:360,    paid:true,  desc:"Weekly — Week of 12 Jun"},
+  {date:"12-Jun-26", customer:"Nyajuok",        amount:302,    paid:true,  desc:"Weekly — Week of 12 Jun"},
+  {date:"12-Jun-26", customer:"Shirley",        amount:615,    paid:true,  desc:"Weekly — Week of 12 Jun"},
+  {date:"12-Jun-26", customer:"Ashoka",         amount:300,    paid:true,  desc:"Weekly — Week of 12 Jun"},
+];
+
+let recTabActive = 'all';
+function recTab(t,el){
+  recTabActive=t;
+  document.querySelectorAll('#sec-reconcile .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderRec(t);
+}
+function renderRec(tab){
+  let list = tab==='paid'?HISTORY.filter(h=>h.paid):tab==='missed'?HISTORY.filter(h=>!h.paid):HISTORY;
+  const total = HISTORY.filter(h=>h.paid).reduce((s,h)=>s+h.amount,0);
+  if(document.getElementById('rec-total')) document.getElementById('rec-total').textContent = '$'+total.toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0});
+  const months = {'April 2026':[],'May 2026':[],'June 2026':[]};
+  list.forEach(h=>{
+    if(h.date.includes('Apr')) months['April 2026'].push(h);
+    else if(h.date.includes('May')) months['May 2026'].push(h);
+    else if(h.date.includes('Jun')) months['June 2026'].push(h);
+  });
+  const COLORS = {Elizabeth:'#4F8EF7',Oznur:'#F59E0B','Naijhana iMax':'#22C55E',Nyajuok:'#7C5CFC',Shirley:'#EF4444',Ashley:'#06B6D4',Ashoka:'#F97316',Doan:'#94A3B8',Jacqueline:'#EC4899'};
+  let html='';
+  Object.entries(months).forEach(([mo,items])=>{
+    if(!items.length)return;
+    const moTotal=items.filter(h=>h.paid).reduce((s,h)=>s+h.amount,0);
+    html+=`<div style="background:var(--bg3);padding:8px 14px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)">${mo} — $${moTotal.toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0})} collected</div>`;
+    items.forEach(h=>{
+      const col=COLORS[h.customer]||'var(--text)';
+      html+=`<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px">
+        <div style="width:85px;color:var(--text2);font-family:'JetBrains Mono',monospace;flex-shrink:0">${h.date}</div>
+        <div style="width:115px;font-weight:600;color:${col};flex-shrink:0">${h.customer}</div>
+        <div style="flex:1;color:var(--text2)">${h.desc}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;width:80px;text-align:right;color:${h.paid?'var(--green)':'var(--red)'}">${h.paid?'$'+h.amount.toLocaleString():'MISSED'}</div>
+        <div style="width:50px;text-align:right"><span class="badge ${h.paid?'green':'red'}">${h.paid?'✅':'❌'}</span></div>
+      </div>`;
+    });
+  });
+  document.getElementById('rec-list').innerHTML=html;
+}
+
+
+// ══ OUTGOINGS LEDGER DATA ══
+
+// ══ LEDGER STORAGE ══
+const LEDGER_KEY = 'atw_ledger_v1';
+
+function loadLedger(){
+  try{
+    const s = localStorage.getItem(LEDGER_KEY);
+    if(s){ const d=JSON.parse(s); if(d&&d.length) return d; }
+  }catch(e){}
+  // seed with default data
+  const seed = [
+  // ── APRIL 2026 ──
+  {date:"7-Apr-26",  desc:"Ashoka Bingle Insurance",           amount:112.36,  cat:"Insurance", vehicle:"Ashoka — Camry",         provider:"Bingle",               notes:""},
+  {date:"7-Apr-26",  desc:"Naijhana Budget Insurance",         amount:196.09,  cat:"Insurance", vehicle:"Naijhana — iMax",         provider:"Budget Direct",         notes:""},
+  {date:"7-Apr-26",  desc:"Autopay Sidra Surmed",              amount:690.05,  cat:"EMI",       vehicle:"TBC — unknown vehicle",   provider:"TBC",                   notes:"Appears monthly ~$692. Which vehicle?"},
+  {date:"8-Apr-26",  desc:"Ashley EMI",                        amount:916.58,  cat:"EMI",       vehicle:"Ashley — CX8",            provider:"Angle Auto Finance",    notes:""},
+  {date:"8-Apr-26",  desc:"Naijhana iMax EMI",                 amount:1280.51, cat:"EMI",       vehicle:"Naijhana — iMax",         provider:"Secure Funding",        notes:""},
+  {date:"8-Apr-26",  desc:"Doan Shift EMI",                    amount:743.31,  cat:"EMI",       vehicle:"Doan — Mitsubishi",       provider:"Shift",                 notes:""},
+  {date:"8-Apr-26",  desc:"Naijhana Holden Shift EMI",         amount:1089.87, cat:"EMI",       vehicle:"Naijhana — Holden",       provider:"Shift",                 notes:""},
+  {date:"14-Apr-26", desc:"Shirley Budget Insurance",          amount:159.75,  cat:"Insurance", vehicle:"Shirley — Carnival",      provider:"Budget Direct",         notes:""},
+  {date:"14-Apr-26", desc:"Elizabeth Budget Insurance",        amount:211.75,  cat:"Insurance", vehicle:"Elizabeth — Pathfinder",  provider:"Budget Direct",         notes:""},
+  {date:"15-Apr-26", desc:"Nyajuok EMI — Powertorque",         amount:956.24,  cat:"EMI",       vehicle:"Nyajuok — Xtrail",        provider:"Powertorque Finance",   notes:""},
+  {date:"21-Apr-26", desc:"Oznur EMI — MB Financial",          amount:1372.25, cat:"EMI",       vehicle:"Oznur — C250 Merc",       provider:"MB Financial",          notes:""},
+  {date:"21-Apr-26", desc:"Shirley EMI — Powertorque",         amount:1381.85, cat:"EMI",       vehicle:"Shirley — Carnival",      provider:"Powertorque Finance",   notes:""},
+  {date:"22-Apr-26", desc:"Oznur QBE Insurance",               amount:245.76,  cat:"Insurance", vehicle:"Oznur — C250 Merc",       provider:"QBE Insurance",         notes:""},
+  {date:"26-Apr-26", desc:"Ashley Budget Insurance",           amount:178.03,  cat:"Insurance", vehicle:"Ashley — CX8",            provider:"Budget Direct",         notes:""},
+
+  // ── MAY 2026 ──
+  {date:"1-May-26",  desc:"ATO Payment",                       amount:3000,    cat:"Tax",       vehicle:"Business",                provider:"ATO",                   notes:"Monthly ATO payment"},
+  {date:"1-May-26",  desc:"Kluger EMI (Personal)",             amount:1445,    cat:"Personal",  vehicle:"Sidra — Kluger",          provider:"Loan/Lease",            notes:"Personal car EMI"},
+  {date:"1-May-26",  desc:"Buddy Tracker (6 cars)",            amount:138,     cat:"Business",  vehicle:"Fleet — all vehicles",    provider:"Buddy Tracker",         notes:"6 car trackers"},
+  {date:"6-May-26",  desc:"Ashoka EMI — Shift",                amount:707,     cat:"EMI",       vehicle:"Ashoka — Camry",          provider:"Shift",                 notes:""},
+  {date:"7-May-26",  desc:"Naijhana Holden Shift EMI",         amount:1089.87, cat:"EMI",       vehicle:"Naijhana — Holden",       provider:"Shift",                 notes:""},
+  {date:"8-May-26",  desc:"Jacqueline Triton Shift EMI",       amount:1286.10, cat:"EMI",       vehicle:"Jacqueline — Triton",     provider:"Shift",                 notes:"New from May 2026"},
+  {date:"8-May-26",  desc:"Naijhana iMax EMI",                 amount:1280.51, cat:"EMI",       vehicle:"Naijhana — iMax",         provider:"Secure Funding",        notes:""},
+  {date:"8-May-26",  desc:"Doan Shift EMI",                    amount:743.31,  cat:"EMI",       vehicle:"Doan — Mitsubishi",       provider:"Shift",                 notes:""},
+  {date:"8-May-26",  desc:"Ashley EMI",                        amount:916.58,  cat:"EMI",       vehicle:"Ashley — CX8",            provider:"Angle Auto Finance",    notes:""},
+  {date:"8-May-26",  desc:"Microsoft",                         amount:21.60,   cat:"Business",  vehicle:"Business",                provider:"Microsoft",             notes:"Monthly subscription"},
+  {date:"14-May-26", desc:"Shirley Budget Insurance",          amount:159.75,  cat:"Insurance", vehicle:"Shirley — Carnival",      provider:"Budget Direct",         notes:""},
+  {date:"14-May-26", desc:"Elizabeth Budget Insurance",        amount:211.75,  cat:"Insurance", vehicle:"Elizabeth — Pathfinder",  provider:"Budget Direct",         notes:""},
+  {date:"15-May-26", desc:"Nyajuok EMI — Powertorque",         amount:956.24,  cat:"EMI",       vehicle:"Nyajuok — Xtrail",        provider:"Powertorque Finance",   notes:""},
+  {date:"19-May-26", desc:"Autopay Sidra Surmed",              amount:692.55,  cat:"EMI",       vehicle:"TBC — unknown vehicle",   provider:"TBC",                   notes:"Which vehicle is this?"},
+  {date:"21-May-26", desc:"Oznur EMI — MB Financial",          amount:1372.25, cat:"EMI",       vehicle:"Oznur — C250 Merc",       provider:"MB Financial",          notes:""},
+  {date:"21-May-26", desc:"Shirley EMI — Powertorque",         amount:1381.85, cat:"EMI",       vehicle:"Shirley — Carnival",      provider:"Powertorque Finance",   notes:""},
+  {date:"22-May-26", desc:"Oznur QBE Insurance",               amount:245.76,  cat:"Insurance", vehicle:"Oznur — C250 Merc",       provider:"QBE Insurance",         notes:""},
+  {date:"25-May-26", desc:"Bingle Insurance (Annual)",         amount:1790.11, cat:"Insurance", vehicle:"TBC — confirm vehicle",   provider:"Bingle",                notes:"Large annual payment — which vehicle?"},
+  {date:"26-May-26", desc:"Ashley Budget Insurance",           amount:178.03,  cat:"Insurance", vehicle:"Ashley — CX8",            provider:"Budget Direct",         notes:""},
+  {date:"26-May-26", desc:"Bargass duo EMI",                   amount:1553.81, cat:"EMI",       vehicle:"Bargass — 2 vehicles",    provider:"Azora Asset Finance",   notes:"Still going out — debt collector case"},
+  {date:"27-May-26", desc:"Rupesh Car EMI",                    amount:483.64,  cat:"EMI",       vehicle:"Rupesh — Nissan Xtrail",  provider:"Plenti",                notes:"Personal EMI for Rupesh"},
+  {date:"27-May-26", desc:"BMW EMI — Westpac",                 amount:4087.55, cat:"Personal",  vehicle:"BMW — personal",          provider:"Westpac Vehicle Finance",notes:"Personal vehicle EMI"},
+  {date:"29-May-26", desc:"Nyajuok Bingle Insurance",          amount:141.46,  cat:"Insurance", vehicle:"Nyajuok — Xtrail",        provider:"Bingle",                notes:"Increased from $115.75"},
+
+  // ── JUNE 2026 ──
+  {date:"1-Jun-26",  desc:"ATO Payment",                       amount:3000,    cat:"Tax",       vehicle:"Business",                provider:"ATO",                   notes:"Monthly ATO payment"},
+  {date:"1-Jun-26",  desc:"Kluger EMI (Personal)",             amount:1445,    cat:"Personal",  vehicle:"Sidra — Kluger",          provider:"Loan/Lease",            notes:"Personal car EMI"},
+  {date:"1-Jun-26",  desc:"Buddy Tracker (6 cars)",            amount:138,     cat:"Business",  vehicle:"Fleet — all vehicles",    provider:"Buddy Tracker",         notes:""},
+  {date:"1-Jun-26",  desc:"VicRoads Rego",                     amount:235.38,  cat:"Rego",      vehicle:"TBC — confirm vehicle",   provider:"VicRoads",              notes:"Which vehicle rego?"},
+  {date:"3-Jun-26",  desc:"Naijhana Budget Insurance",         amount:196.09,  cat:"Insurance", vehicle:"Naijhana — iMax",         provider:"Budget Direct",         notes:""},
+  {date:"3-Jun-26",  desc:"Bingle Insurance",                  amount:141.46,  cat:"Insurance", vehicle:"TBC — confirm vehicle",   provider:"Bingle",                notes:"Increased — which vehicle?"},
+  {date:"6-Jun-26",  desc:"Ashoka EMI — Shift",                amount:707,     cat:"EMI",       vehicle:"Ashoka — Camry",          provider:"Shift",                 notes:""},
+  {date:"7-Jun-26",  desc:"Naijhana Holden Shift EMI",         amount:1089.87, cat:"EMI",       vehicle:"Naijhana — Holden",       provider:"Shift",                 notes:""},
+  {date:"8-Jun-26",  desc:"Microsoft",                         amount:21.60,   cat:"Business",  vehicle:"Business",                provider:"Microsoft",             notes:"Monthly subscription"},
+  {date:"8-Jun-26",  desc:"Naijhana iMax EMI",                 amount:1280.51, cat:"EMI",       vehicle:"Naijhana — iMax",         provider:"Secure Funding",        notes:""},
+  {date:"8-Jun-26",  desc:"Ashley EMI",                        amount:916.58,  cat:"EMI",       vehicle:"Ashley — CX8",            provider:"Angle Auto Finance",    notes:""},
+  {date:"9-Jun-26",  desc:"Jacqueline Triton Shift EMI",       amount:1286.10, cat:"EMI",       vehicle:"Jacqueline — Triton",     provider:"Shift",                 notes:""},
+  {date:"9-Jun-26",  desc:"Doan Shift EMI",                    amount:743.31,  cat:"EMI",       vehicle:"Doan — Mitsubishi",       provider:"Shift",                 notes:""},
+  {date:"9-Jun-26",  desc:"Autopay Sidra Surmed",              amount:692.55,  cat:"EMI",       vehicle:"TBC — unknown vehicle",   provider:"TBC",                   notes:"Which vehicle is this?"},
+  {date:"10-Jun-26", desc:"Adica Insurance",                   amount:232.66,  cat:"Insurance", vehicle:"Sidra — Kluger",          provider:"Adica (MS&AD)",         notes:"Personal car insurance"},
+  {date:"14-Jun-26", desc:"Shirley Budget Insurance",          amount:159.75,  cat:"Insurance", vehicle:"Shirley — Carnival",      provider:"Budget Direct",         notes:""},
+  {date:"14-Jun-26", desc:"Elizabeth Budget Insurance",        amount:211.75,  cat:"Insurance", vehicle:"Elizabeth — Pathfinder",  provider:"Budget Direct",         notes:""},
+  {date:"15-Jun-26", desc:"Nyajuok EMI — Powertorque",         amount:956.24,  cat:"EMI",       vehicle:"Nyajuok — Xtrail",        provider:"Powertorque Finance",   notes:""},
+  {date:"21-Jun-26", desc:"Oznur EMI — MB Financial",          amount:1372.25, cat:"EMI",       vehicle:"Oznur — C250 Merc",       provider:"MB Financial",          notes:""},
+  {date:"21-Jun-26", desc:"Shirley EMI — Powertorque",         amount:1381.85, cat:"EMI",       vehicle:"Shirley — Carnival",      provider:"Powertorque Finance",   notes:""},
+  {date:"22-Jun-26", desc:"Oznur QBE Insurance",               amount:245.76,  cat:"Insurance", vehicle:"Oznur — C250 Merc",       provider:"QBE Insurance",         notes:""},
+  {date:"26-Jun-26", desc:"Ashley Budget Insurance",           amount:178.03,  cat:"Insurance", vehicle:"Ashley — CX8",            provider:"Budget Direct",         notes:""},
+  {date:"26-Jun-26", desc:"Bargass duo EMI",                   amount:1553.81, cat:"EMI",       vehicle:"Bargass — 2 vehicles",    provider:"Azora Asset Finance",   notes:"Debt collector case"},
+  {date:"27-Jun-26", desc:"Rupesh Car EMI",                    amount:483.64,  cat:"EMI",       vehicle:"Rupesh — Nissan Xtrail",  provider:"Plenti",                notes:""},
+  {date:"27-Jun-26", desc:"BMW EMI — Westpac",                 amount:4087.55, cat:"Personal",  vehicle:"BMW — personal",          provider:"Westpac Vehicle Finance",notes:""},
+  {date:"29-Jun-26", desc:"Nyajuok Bingle Insurance",          amount:141.46,  cat:"Insurance", vehicle:"Nyajuok — Xtrail",        provider:"Bingle",                notes:""},
+];
+  localStorage.setItem(LEDGER_KEY, JSON.stringify(seed));
+  return seed;
+}
+
+let LEDGER = loadLedger();
+
+function saveLedger(){
+  localStorage.setItem(LEDGER_KEY, JSON.stringify(LEDGER));
+}
+
+const CAT_CLR_L = {EMI:'red',Insurance:'orange',Business:'blue',Tax:'purple',Personal:'gray',Rego:'blue'};
+let ledgerTabActive = 'all';
+
+function ledgerTab(t, el){
+  ledgerTabActive = t;
+  document.querySelectorAll('#sec-ledger .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderLedger();
+}
+
+function renderLedger(){
+  let list = LEDGER;
+  if(ledgerTabActive==='Apr')    list = list.filter(l=>l.date.includes('Apr'));
+  else if(ledgerTabActive==='May') list = list.filter(l=>l.date.includes('May'));
+  else if(ledgerTabActive==='Jun') list = list.filter(l=>l.date.includes('Jun'));
+  else if(ledgerTabActive==='EMI') list = list.filter(l=>l.cat==='EMI');
+  else if(ledgerTabActive==='Insurance') list = list.filter(l=>l.cat==='Insurance');
+  else if(ledgerTabActive==='Personal') list = list.filter(l=>l.cat==='Personal');
+  else if(ledgerTabActive==='TBC') list = list.filter(l=>l.vehicle.includes('TBC')||l.provider==='TBC');
+
+  const total = list.reduce((s,l)=>s+l.amount, 0);
+  const tbcCount = list.filter(l=>l.vehicle.includes('TBC')||l.provider==='TBC').length;
+
+  // Stats
+  const allCats = {};
+  LEDGER.forEach(l=>{ allCats[l.cat]=(allCats[l.cat]||0)+l.amount; });
+  const aprTotal = LEDGER.filter(l=>l.date.includes('Apr')).reduce((s,l)=>s+l.amount,0);
+  const mayTotal = LEDGER.filter(l=>l.date.includes('May')).reduce((s,l)=>s+l.amount,0);
+  const junTotal = LEDGER.filter(l=>l.date.includes('Jun')).reduce((s,l)=>s+l.amount,0);
+
+  document.getElementById('ledger-stats').innerHTML = `
+    <div class="stat-card c-red"><div class="stat-label">April Total Out</div><div class="stat-value sv-red">$${Math.round(aprTotal).toLocaleString()}</div></div>
+    <div class="stat-card c-red"><div class="stat-label">May Total Out</div><div class="stat-value sv-red">$${Math.round(mayTotal).toLocaleString()}</div></div>
+    <div class="stat-card c-red"><div class="stat-label">June Total Out</div><div class="stat-value sv-red">$${Math.round(junTotal).toLocaleString()}</div></div>
+    <div class="stat-card c-orange"><div class="stat-label">TBC Items</div><div class="stat-value sv-orange">${LEDGER.filter(l=>l.vehicle.includes('TBC')||l.provider==='TBC').length}</div><div class="stat-sub">Need clarification</div></div>
+  `;
+
+  document.getElementById('ledger-total').textContent = 'Showing: $' + total.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const rows = list.map(l => {
+    const isTBC = l.vehicle.includes('TBC') || l.provider === 'TBC';
+    const cc = CAT_CLR_L[l.cat] || 'gray';
+    return `<tr style="${isTBC?'background:rgba(245,158,11,0.05)':''}">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);white-space:nowrap">${l.date}</td>
+      <td style="font-weight:600">${l.desc}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--red);white-space:nowrap">$${l.amount.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td><span class="badge ${cc}">${l.cat}</span></td>
+      <td style="font-size:12px;color:${isTBC?'var(--orange)':'var(--text2)'}">
+        ${isTBC?'⚠️ ':''}<strong>${l.vehicle.split('—')[0].trim()}</strong>${l.vehicle.includes('—')?'<br><span style="font-size:11px;color:var(--text3)">'+l.vehicle.split('—')[1].trim()+'</span>':''}
+      </td>
+      <td style="font-size:12px;color:var(--text2)">${l.provider}</td>
+      <td style="font-size:11px;color:${l.notes.includes('?')||l.notes.includes('TBC')?'var(--orange)':'var(--text3)'}">${l.notes||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ledger-tbody').innerHTML = rows ||
+    '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:20px">No entries for this filter</td></tr>';
+}
+
+
+
+// ══ PASSWORD PROTECTION ══
+const PWD_KEY = 'atw_auth_v1';
+const CORRECT_PWD = 'ATW2026'; // ← Change this to your preferred password
+
+function checkPwd(){
+  const input = document.getElementById('pwd-input').value;
+  if(input === CORRECT_PWD){
+    localStorage.setItem(PWD_KEY, 'true');
+    document.getElementById('password-screen').style.display = 'none';
+  } else {
+    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+    setTimeout(()=>{ document.getElementById('pwd-error').style.display='none'; }, 3000);
+  }
+}
+
+function checkAuth(){
+  if(localStorage.getItem(PWD_KEY) === 'true'){
+    document.getElementById('password-screen').style.display = 'none';
+  }
+  // Focus input on load
+  const pwdScreen = document.getElementById('password-screen');
+  if(pwdScreen && pwdScreen.style.display !== 'none'){
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+
+function openEditLedger(idx){
+  const l = LEDGER[idx];
+  if(!l) return;
+  document.getElementById('le-idx').value = idx;
+  document.getElementById('le-date').value = l.date;
+  document.getElementById('le-amount').value = l.amount;
+  document.getElementById('le-desc').value = l.desc;
+  document.getElementById('le-cat').value = l.cat;
+  document.getElementById('le-provider').value = l.provider;
+  document.getElementById('le-vehicle').value = l.vehicle;
+  document.getElementById('le-notes').value = l.notes;
+  document.getElementById('modal-ledger').classList.add('show');
+}
+
+function saveLedgerEntry(){
+  const idx = parseInt(document.getElementById('le-idx').value);
+  LEDGER[idx] = {
+    date:     document.getElementById('le-date').value.trim(),
+    amount:   parseFloat(document.getElementById('le-amount').value)||0,
+    desc:     document.getElementById('le-desc').value.trim(),
+    cat:      document.getElementById('le-cat').value,
+    provider: document.getElementById('le-provider').value.trim(),
+    vehicle:  document.getElementById('le-vehicle').value.trim(),
+    notes:    document.getElementById('le-notes').value.trim(),
+  };
+  saveLedger();
+  closeModal('modal-ledger');
+  renderLedger();
+}
+
+function deleteLedgerEntry(){
+  const idx = parseInt(document.getElementById('le-idx').value);
+  const entry = LEDGER[idx];
+  if(!entry || !confirm(`Delete "${entry.desc}"?`)) return;
+  LEDGER.splice(idx, 1);
+  saveLedger();
+  closeModal('modal-ledger');
+  renderLedger();
+}
+
+function openAddLedger(){
+  ['la-date','la-amount','la-desc','la-provider','la-vehicle','la-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('la-cat').value = 'EMI';
+  document.getElementById('modal-ledger-add').classList.add('show');
+}
+
+function addLedgerEntry(){
+  const desc = document.getElementById('la-desc').value.trim();
+  if(!desc){ alert('Please enter a description'); return; }
+  LEDGER.push({
+    date:     document.getElementById('la-date').value.trim(),
+    amount:   parseFloat(document.getElementById('la-amount').value)||0,
+    desc,
+    cat:      document.getElementById('la-cat').value,
+    provider: document.getElementById('la-provider').value.trim(),
+    vehicle:  document.getElementById('la-vehicle').value.trim(),
+    notes:    document.getElementById('la-notes').value.trim(),
+  });
+  saveLedger();
+  closeModal('modal-ledger-add');
+  renderLedger();
+}
+
+// ══ INIT ══
+checkAuth();
+$('top-date').textContent = new Date().toLocaleDateString('en-AU',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+renderAll();
+</script>
+
+<!-- LEDGER EDIT MODAL -->
+<div class="modal-bg" id="modal-ledger">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Outgoing Entry</div>
+      <button class="modal-close" onclick="closeModal('modal-ledger')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="le-idx">
+      <div class="field-row">
+        <div class="field"><label class="field-label">Date</label><input class="field-input" id="le-date"></div>
+        <div class="field"><label class="field-label">Amount ($)</label><input class="field-input" id="le-amount" type="number" step="0.01"></div>
+      </div>
+      <div class="field"><label class="field-label">Description</label><input class="field-input" id="le-desc"></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Category</label>
+          <select class="field-input" id="le-cat">
+            <option value="EMI">EMI</option>
+            <option value="Insurance">Insurance</option>
+            <option value="Personal">Personal</option>
+            <option value="Tax">Tax</option>
+            <option value="Business">Business</option>
+            <option value="Rego">Rego</option>
+          </select>
+        </div>
+        <div class="field"><label class="field-label">Provider / Lender</label><input class="field-input" id="le-provider"></div>
+      </div>
+      <div class="field"><label class="field-label">Vehicle / Customer</label><input class="field-input" id="le-vehicle"></div>
+      <div class="field"><label class="field-label">Notes</label><input class="field-input" id="le-notes"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="deleteLedgerEntry()" style="margin-right:auto">🗑 Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-ledger')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLedgerEntry()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- LEDGER ADD MODAL -->
+<div class="modal-bg" id="modal-ledger-add">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Outgoing</div>
+      <button class="modal-close" onclick="closeModal('modal-ledger-add')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label class="field-label">Date</label><input class="field-input" id="la-date" placeholder="e.g. 1-Jul-26"></div>
+        <div class="field"><label class="field-label">Amount ($)</label><input class="field-input" id="la-amount" type="number" step="0.01"></div>
+      </div>
+      <div class="field"><label class="field-label">Description</label><input class="field-input" id="la-desc"></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Category</label>
+          <select class="field-input" id="la-cat">
+            <option value="EMI">EMI</option>
+            <option value="Insurance">Insurance</option>
+            <option value="Personal">Personal</option>
+            <option value="Tax">Tax</option>
+            <option value="Business">Business</option>
+            <option value="Rego">Rego</option>
+          </select>
+        </div>
+        <div class="field"><label class="field-label">Provider / Lender</label><input class="field-input" id="la-provider"></div>
+      </div>
+      <div class="field"><label class="field-label">Vehicle / Customer</label><input class="field-input" id="la-vehicle"></div>
+      <div class="field"><label class="field-label">Notes</label><input class="field-input" id="la-notes"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ledger-add')">Cancel</button>
+      <button class="btn btn-primary" onclick="addLedgerEntry()">Add Entry</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
